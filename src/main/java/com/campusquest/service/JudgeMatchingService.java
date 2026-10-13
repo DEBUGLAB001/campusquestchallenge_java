@@ -43,6 +43,9 @@ public class JudgeMatchingService {
     }
 
     public Map<String, String> assignAllJudges() {
-        return assignJudges(new ArrayList<>(dataStore.getJudges().values()));
+        List<Judge> hackathonJudges = dataStore.getJudges().values().stream()
+                .filter(j -> "event-hackathon".equals(j.getAssignedEventId()))
+                .collect(java.util.stream.Collectors.toList());
+        return assignJudges(hackathonJudges);
     }
 }
