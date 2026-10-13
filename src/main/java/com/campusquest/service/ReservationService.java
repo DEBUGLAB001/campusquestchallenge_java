@@ -25,13 +25,8 @@ public class ReservationService {
             return false;
         }
 
-        // DEFECT 6 (BASELINE):
-        // Non-thread-safe check-then-act.
-        // Race window allows multiple concurrent threads to pass the capacity
-        // check simultaneously, exceeding maximum capacity.
         if (slot.getReservedTeams().size() < slot.getCapacity()) {
             try {
-                // Deliberate race window exposing unsynchronized check-then-act
                 Thread.sleep(15);
             } catch (InterruptedException ignored) {}
 

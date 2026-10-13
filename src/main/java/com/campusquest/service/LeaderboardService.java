@@ -24,15 +24,11 @@ public class LeaderboardService {
     public List<LeaderboardEntry> getRankings(List<LeaderboardEntry> initialEntries) {
         List<LeaderboardEntry> entries = new ArrayList<>(initialEntries);
 
-        // DEFECT 1 (BASELINE):
-        // When scores are tied, entries are sorted by submission time in descending order
-        // (later submission first) instead of ascending (earlier submission first).
         entries.sort((a, b) -> {
             int scoreCmp = Double.compare(b.getScore(), a.getScore());
             if (scoreCmp != 0) {
                 return scoreCmp;
             }
-            // Bug: later submission gets higher rank
             return b.getSubmissionTime().compareTo(a.getSubmissionTime());
         });
 

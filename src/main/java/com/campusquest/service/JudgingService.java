@@ -20,10 +20,6 @@ public class JudgingService {
      * Retries with identical evaluationId must be idempotent.
      */
     public void recordScore(ScoreRecord record) {
-        // DEFECT 4 (BASELINE):
-        // Blindly appends every callback payload to a list without deduplicating
-        // by evaluationId. When network retries re-deliver the evaluation, duplicate
-        // score records are appended.
         dataStore.getScoresList().add(record);
     }
 

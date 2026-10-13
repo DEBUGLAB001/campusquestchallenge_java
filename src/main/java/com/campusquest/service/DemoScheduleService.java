@@ -19,10 +19,6 @@ public class DemoScheduleService {
      * Schedules non-overlapping demo presentations to maximize total priority score.
      */
     public List<DemoSlot> scheduleDemos(List<DemoSlot> requests) {
-        // DEFECT 8 (BASELINE):
-        // Greedy selection by highest individual priority.
-        // A single long demo (priority 50) blocks two compatible demos (priorities 30 + 35 = 65),
-        // resulting in suboptimal schedule score 50 instead of optimal 65.
         List<DemoSlot> sorted = new ArrayList<>(requests);
         sorted.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority()));
 

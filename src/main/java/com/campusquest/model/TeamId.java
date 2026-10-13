@@ -24,9 +24,6 @@ public class TeamId {
         return Objects.equals(value, teamId.value);
     }
 
-    // DEFECT 3 (BASELINE): hashCode not properly linked to value!
-    // In baseline, returns super.hashCode() which uses System.identityHashCode,
-    // causing two distinct TeamId instances with identical values to fail map lookups.
     @Override
     public int hashCode() {
         return super.hashCode();

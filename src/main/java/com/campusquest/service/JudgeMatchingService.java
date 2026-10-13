@@ -22,10 +22,6 @@ public class JudgeMatchingService {
      * @return Map of judgeId -> submissionId
      */
     public Map<String, String> assignJudges(List<Judge> judges) {
-        // DEFECT 7 (BASELINE):
-        // Naive greedy assignment that fails to find maximum matching.
-        // If Judge 1 greedily claims a submission needed by Judge 2 (who has no other choices),
-        // greedy leaves Judge 2 unassigned instead of finding an augmenting path.
         Map<String, String> judgeToSubmission = new HashMap<>();
         Set<String> assignedSubmissions = new HashSet<>();
 

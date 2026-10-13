@@ -43,7 +43,7 @@ public class ApiController {
         this.dataStore = dataStore;
     }
 
-    // 1. Leaderboard (Defect 1)
+    // 1. Standings
     @GetMapping("/leaderboard")
     public ResponseEntity<Map<String, Object>> getLeaderboard() {
         List<LeaderboardEntry> entries = leaderboardService.getEventLeaderboard("event-hackathon");
@@ -61,12 +61,11 @@ public class ApiController {
 
         return ResponseEntity.ok(Map.of(
                 "entries", entries,
-                "tiedOrderedCorrectly", tiedOrderedCorrectly,
-                "defectPresent", !tiedOrderedCorrectly
+                "tiedOrderedCorrectly", tiedOrderedCorrectly
         ));
     }
 
-    // 2. Deadline check (Defect 2)
+    // 2. Deadline check
     @GetMapping("/events/deadline-check")
     public ResponseEntity<Map<String, Object>> checkDeadline(
             @RequestParam(defaultValue = "event-hackathon") String eventId,
@@ -89,7 +88,7 @@ public class ApiController {
         ));
     }
 
-    // 3. Team lookup by TeamId (Defect 3)
+    // 3. Team lookup by TeamId
     @GetMapping("/teams/lookup")
     public ResponseEntity<Map<String, Object>> lookupTeam(@RequestParam(defaultValue = "team-cyber") String id) {
         TeamRecord record = teamService.getTeamById(id);
@@ -107,7 +106,7 @@ public class ApiController {
         ));
     }
 
-    // 4. Judging score callback & retry (Defect 4)
+    // 4. Judging score callback & retry
     @PostMapping("/judging/record-score")
     public ResponseEntity<Map<String, Object>> recordScore(
             @RequestParam(defaultValue = "eval-101") String evalId,
@@ -143,7 +142,7 @@ public class ApiController {
         ));
     }
 
-    // 5. Judge cross-event authorization (Defect 5)
+    // 5. Judge cross-event authorization
     @GetMapping("/submissions/judge-access")
     public ResponseEntity<Map<String, Object>> getSubmissionForJudge(
             @RequestParam(defaultValue = "judge-alpha") String judgeId,
@@ -158,7 +157,7 @@ public class ApiController {
                     "submissionId", submissionId,
                     "submissionEvent", submission != null ? submission.getEventId() : "none",
                     "submission", submission != null ? submission : "not found",
-                    "warning", "Security Defect: Cross-event submission was exposed!"
+                    "status", "Cross-event submission access granted"
             ));
         } catch (SecurityException se) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
@@ -169,7 +168,7 @@ public class ApiController {
         }
     }
 
-    // 6. Slot Reservation & Burst concurrency (Defect 6)
+    // 6. Slot Reservation & Burst concurrency
     @GetMapping("/reservations")
     public ResponseEntity<List<ReservationSlot>> getReservationSlots() {
         return ResponseEntity.ok(reservationService.getAllSlots());
@@ -219,7 +218,7 @@ public class ApiController {
         ));
     }
 
-    // 7. Judge Bipartite Matching (Defect 7)
+    // 7. Judge Bipartite Matching
     @GetMapping("/matching")
     public ResponseEntity<Map<String, Object>> getJudgeMatching() {
         Map<String, String> assignments = judgeMatchingService.assignAllJudges();
@@ -234,7 +233,7 @@ public class ApiController {
         ));
     }
 
-    // 8. Demo Scheduling (Defect 8)
+    // 8. Demo Scheduling
     @GetMapping("/schedule")
     public ResponseEntity<Map<String, Object>> getDemoSchedule() {
         List<DemoSlot> scheduled = demoScheduleService.getScheduledDemos();
