@@ -36,8 +36,10 @@ build_app() {
 }
 
 start_server() {
+    # Copy to runner.jar to prevent OS file locks on target/app.jar during recompilation
+    cp target/app.jar target/runner.jar
     echo "[watcher] Launching server on 0.0.0.0:3000..." >&2
-    java -jar target/app.jar 1>&2 &
+    java -jar target/runner.jar 1>&2 &
     SERVER_PID=$!
     echo "[watcher] Server running with PID $SERVER_PID" >&2
 }

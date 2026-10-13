@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping({"/api", "/runtime/{runtimeId}/preview/api"})
 public class ApiController {
 
     private final LeaderboardService leaderboardService;

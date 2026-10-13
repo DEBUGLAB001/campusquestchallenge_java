@@ -18,7 +18,7 @@ public class HealthController {
             .withZone(ZoneId.systemDefault())
             .format(Instant.now());
 
-    @GetMapping({"/health", "/api/health"})
+    @GetMapping({"/health", "/api/health", "/runtime/{runtimeId}/preview/health", "/runtime/{runtimeId}/preview/api/health"})
     public ResponseEntity<Map<String, Object>> getHealth() {
         return ResponseEntity.ok(Map.of(
                 "boot_id", bootId,
