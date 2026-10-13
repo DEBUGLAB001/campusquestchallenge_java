@@ -27,13 +27,8 @@ public class SubmissionService {
         }
 
         LocalDateTime localDeadline = LocalDateTime.parse(event.getDeadline());
-
-        // DEFECT 2 (BASELINE):
-        // Interprets the local deadline as UTC instead of using event.getTimeZone().
-        // For America/New_York (UTC-4), 18:00 local is 22:00 UTC.
-        // Parsing as UTC makes the deadline 18:00 UTC, causing legitimate on-time
-        // submissions (e.g. 21:30 UTC = 17:30 local) to be falsely rejected as expired.
-        Instant deadlineInstant = localDeadline.atZone(ZoneOffset.UTC).toInstant();
+        java.time.ZoneId zoneId = java.time.ZoneId.of(event.getTimeZone());
+        Instant deadlineInstant = localDeadline.atZone(zoneId).toInstant();
 
         return !submissionTime.isAfter(deadlineInstant);
     }
@@ -44,11 +39,15 @@ public class SubmissionService {
      */
     public Submission getSubmissionForJudge(String judgeId, String submissionId) {
         Judge judge = dataStore.getJudges().get(judgeId);
+        if (judge == null) {
+            throw new SecurityException("Judge not found: " + judgeId);
+        }
         Submission submission = dataStore.getSubmissions().get(submissionId);
-
-        // DEFECT 5 (BASELINE):
-        // Omits access control check validating that judge.getAssignedEventId()
-        // equals submission.getEventId(). Allows cross-event information disclosure.
+        if (submission != null && !submission.getEventId().equals(judge.getAssignedEventId())) {
+            throw new SecurityException("Unauthorized: Judge " + judgeId + " is assigned to event "
+                    + judge.getAssignedEventId() + " but attempted to access submission for event "
+                    + submission.getEventId());
+        }
         return submission;
     }
 

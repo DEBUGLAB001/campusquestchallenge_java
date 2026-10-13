@@ -19,28 +19,49 @@ public class DemoScheduleService {
      * Schedules non-overlapping demo presentations to maximize total priority score.
      */
     public List<DemoSlot> scheduleDemos(List<DemoSlot> requests) {
-        // DEFECT 8 (BASELINE):
-        // Greedy selection by highest individual priority.
-        // A single long demo (priority 50) blocks two compatible demos (priorities 30 + 35 = 65),
-        // resulting in suboptimal schedule score 50 instead of optimal 65.
-        List<DemoSlot> sorted = new ArrayList<>(requests);
-        sorted.sort((a, b) -> Integer.compare(b.getPriority(), a.getPriority()));
+        // Fix: Weighted Interval Scheduling via Dynamic Programming
+        if (requests == null || requests.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<DemoSlot> slots = new ArrayList<>(requests);
+        slots.sort(java.util.Comparator.comparingInt(DemoSlot::getEndMinute));
 
-        List<DemoSlot> selected = new ArrayList<>();
-        for (DemoSlot slot : sorted) {
-            boolean overlaps = false;
-            for (DemoSlot chosen : selected) {
-                // Overlap condition: max(start1, start2) < min(end1, end2)
-                if (Math.max(slot.getStartMinute(), chosen.getStartMinute()) <
-                        Math.min(slot.getEndMinute(), chosen.getEndMinute())) {
-                    overlaps = true;
+        int n = slots.size();
+        int[] opt = new int[n];
+        int[] prev = new int[n];
+
+        // Find latest non-conflicting interval p[i]
+        for (int i = 0; i < n; i++) {
+            prev[i] = -1;
+            for (int j = i - 1; j >= 0; j--) {
+                if (slots.get(j).getEndMinute() <= slots.get(i).getStartMinute()) {
+                    prev[i] = j;
                     break;
                 }
             }
-            if (!overlaps) {
-                selected.add(slot);
+        }
+
+        opt[0] = slots.get(0).getPriority();
+        for (int i = 1; i < n; i++) {
+            int incl = slots.get(i).getPriority() + (prev[i] != -1 ? opt[prev[i]] : 0);
+            int excl = opt[i - 1];
+            opt[i] = Math.max(incl, excl);
+        }
+
+        // Reconstruct selected slots
+        List<DemoSlot> selected = new ArrayList<>();
+        int curr = n - 1;
+        while (curr >= 0) {
+            int incl = slots.get(curr).getPriority() + (prev[curr] != -1 ? opt[prev[curr]] : 0);
+            int excl = curr > 0 ? opt[curr - 1] : 0;
+            if (incl >= excl) {
+                selected.add(slots.get(curr));
+                curr = prev[curr];
+            } else {
+                curr--;
             }
         }
+        java.util.Collections.reverse(selected);
         return selected;
     }
 

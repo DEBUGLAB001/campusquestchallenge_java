@@ -32,8 +32,8 @@ public class LeaderboardService {
             if (scoreCmp != 0) {
                 return scoreCmp;
             }
-            // Bug: later submission gets higher rank
-            return b.getSubmissionTime().compareTo(a.getSubmissionTime());
+            // Fix: earlier submission time gets higher rank
+            return a.getSubmissionTime().compareTo(b.getSubmissionTime());
         });
 
         for (int i = 0; i < entries.size(); i++) {

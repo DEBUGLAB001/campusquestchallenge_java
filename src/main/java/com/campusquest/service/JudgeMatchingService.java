@@ -22,24 +22,38 @@ public class JudgeMatchingService {
      * @return Map of judgeId -> submissionId
      */
     public Map<String, String> assignJudges(List<Judge> judges) {
-        // DEFECT 7 (BASELINE):
-        // Naive greedy assignment that fails to find maximum matching.
-        // If Judge 1 greedily claims a submission needed by Judge 2 (who has no other choices),
-        // greedy leaves Judge 2 unassigned instead of finding an augmenting path.
-        Map<String, String> judgeToSubmission = new HashMap<>();
-        Set<String> assignedSubmissions = new HashSet<>();
+        // Fix: Maximum Bipartite Matching using augmenting paths (Ford-Fulkerson / DFS)
+        Map<String, String> submissionToJudge = new HashMap<>();
+        Map<String, Judge> judgeMap = new HashMap<>();
+        for (Judge j : judges) {
+            judgeMap.put(j.getJudgeId(), j);
+        }
 
         for (Judge judge : judges) {
-            for (String subId : judge.getQualifiedSubmissionIds()) {
-                if (!assignedSubmissions.contains(subId)) {
-                    judgeToSubmission.put(judge.getJudgeId(), subId);
-                    assignedSubmissions.add(subId);
-                    break;
+            Set<String> visited = new HashSet<>();
+            bpm(judge.getJudgeId(), submissionToJudge, visited, judgeMap);
+        }
+
+        Map<String, String> judgeToSubmission = new HashMap<>();
+        for (Map.Entry<String, String> entry : submissionToJudge.entrySet()) {
+            judgeToSubmission.put(entry.getValue(), entry.getKey());
+        }
+        return judgeToSubmission;
+    }
+
+    private boolean bpm(String judgeId, Map<String, String> match, Set<String> visited, Map<String, Judge> judgeMap) {
+        Judge judge = judgeMap.get(judgeId);
+        if (judge == null) return false;
+
+        for (String subId : judge.getQualifiedSubmissionIds()) {
+            if (visited.add(subId)) {
+                if (!match.containsKey(subId) || bpm(match.get(subId), match, visited, judgeMap)) {
+                    match.put(subId, judgeId);
+                    return true;
                 }
             }
         }
-
-        return judgeToSubmission;
+        return false;
     }
 
     public Map<String, String> assignAllJudges() {

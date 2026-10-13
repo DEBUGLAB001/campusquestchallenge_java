@@ -20,28 +20,25 @@ public class JudgingService {
      * Retries with identical evaluationId must be idempotent.
      */
     public void recordScore(ScoreRecord record) {
-        // DEFECT 4 (BASELINE):
-        // Blindly appends every callback payload to a list without deduplicating
-        // by evaluationId. When network retries re-deliver the evaluation, duplicate
-        // score records are appended.
-        dataStore.getScoresList().add(record);
+        // Fix: Idempotent map keyed by unique evaluationId
+        dataStore.getScoresMap().put(record.getEvaluationId(), record);
     }
 
     public double getTotalScore(String submissionId) {
-        return dataStore.getScoresList().stream()
+        return dataStore.getScoresMap().values().stream()
                 .filter(s -> s.getSubmissionId().equals(submissionId))
                 .mapToDouble(ScoreRecord::getScore)
                 .sum();
     }
 
     public int getEvaluationCount(String submissionId) {
-        return (int) dataStore.getScoresList().stream()
+        return (int) dataStore.getScoresMap().values().stream()
                 .filter(s -> s.getSubmissionId().equals(submissionId))
                 .count();
     }
 
     public List<ScoreRecord> getScoresForSubmission(String submissionId) {
-        return dataStore.getScoresList().stream()
+        return dataStore.getScoresMap().values().stream()
                 .filter(s -> s.getSubmissionId().equals(submissionId))
                 .collect(Collectors.toList());
     }
