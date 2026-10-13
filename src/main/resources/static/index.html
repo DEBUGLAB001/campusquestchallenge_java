@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusQuest — Collegiate Hackathon & Quest Platform</title>
+    <title>CampusQuest — Collegiate Hackathon & Event Platform</title>
     <meta name="description" content="CampusQuest hackathon management dashboard with live metrics, leaderboard, scheduling, and judge assignments.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,7 +39,7 @@
             </div>
         </header>
 
-        <!-- Live Status Banner / Toast -->
+        <!-- Live Status Banner / Toast (Flashes temporarily on changes) -->
         <div id="reloadNotification" class="toast-banner hidden">
             <div class="toast-content">
                 <span class="spinner" id="toastSpinner"></span>
@@ -51,69 +51,69 @@
         <div class="dashboard-container">
             <!-- Sidebar Navigation Tabs -->
             <nav class="sidebar" aria-label="Feature modules">
-                <div class="sidebar-heading">CHALLENGE MODULES</div>
+                <div class="sidebar-heading">EVENT MODULES</div>
                 <ul class="nav-list" role="tablist">
                     <li>
                         <button class="nav-item active" data-tab="leaderboard" id="tab-leaderboard" role="tab">
                             <span class="icon">🏆</span>
-                            <span class="title">Leaderboard</span>
-                            <span class="badge" id="badge-leaderboard">Tie-Break</span>
+                            <span class="title">Standings</span>
+                            <span class="badge" id="badge-leaderboard">Live</span>
                         </button>
                     </li>
                     <li>
                         <button class="nav-item" data-tab="deadlines" id="tab-deadlines" role="tab">
                             <span class="icon">⏰</span>
-                            <span class="title">Event Deadlines</span>
-                            <span class="badge" id="badge-deadlines">Timezone</span>
+                            <span class="title">Submission Check</span>
+                            <span class="badge" id="badge-deadlines">Portal</span>
                         </button>
                     </li>
                     <li>
                         <button class="nav-item" data-tab="teams" id="tab-teams" role="tab">
                             <span class="icon">👥</span>
-                            <span class="title">Team Registry</span>
-                            <span class="badge" id="badge-teams">Lookup</span>
+                            <span class="title">Team Directory</span>
+                            <span class="badge" id="badge-teams">Roster</span>
                         </button>
                     </li>
                     <li>
                         <button class="nav-item" data-tab="judging" id="tab-judging" role="tab">
                             <span class="icon">⚖️</span>
-                            <span class="title">Judging Scores</span>
-                            <span class="badge" id="badge-judging">Retry</span>
+                            <span class="title">Evaluation Scores</span>
+                            <span class="badge" id="badge-judging">Judging</span>
                         </button>
                     </li>
                     <li>
                         <button class="nav-item" data-tab="access" id="tab-access" role="tab">
                             <span class="icon">🔒</span>
-                            <span class="title">Judge Access</span>
-                            <span class="badge" id="badge-access">Isolation</span>
+                            <span class="title">Review Access</span>
+                            <span class="badge" id="badge-access">Security</span>
                         </button>
                     </li>
                     <li>
                         <button class="nav-item" data-tab="reservations" id="tab-reservations" role="tab">
                             <span class="icon">🎪</span>
-                            <span class="title">Reservations</span>
-                            <span class="badge" id="badge-reservations">Concurrency</span>
+                            <span class="title">Venue Booths</span>
+                            <span class="badge" id="badge-reservations">Slots</span>
                         </button>
                     </li>
                     <li>
                         <button class="nav-item" data-tab="matching" id="tab-matching" role="tab">
                             <span class="icon">🎯</span>
-                            <span class="title">Judge Matching</span>
-                            <span class="badge" id="badge-matching">Bipartite</span>
+                            <span class="title">Judge Allocation</span>
+                            <span class="badge" id="badge-matching">Rounds</span>
                         </button>
                     </li>
                     <li>
                         <button class="nav-item" data-tab="schedule" id="tab-schedule" role="tab">
                             <span class="icon">📅</span>
-                            <span class="title">Demo Schedule</span>
-                            <span class="badge" id="badge-schedule">Priority</span>
+                            <span class="title">Demo Day Schedule</span>
+                            <span class="badge" id="badge-schedule">Main Hall</span>
                         </button>
                     </li>
                 </ul>
                 <div class="sidebar-footer">
                     <div class="poll-indicator">
                         <span class="pulse-dot"></span>
-                        <span class="poll-text">Live Poll: 1.5s (no-store)</span>
+                        <span class="poll-text">Live Polling: 1.5s (no-store)</span>
                     </div>
                 </div>
             </nav>
@@ -123,7 +123,7 @@
                 <!-- Friendly Error Card (shown if network/API drops) -->
                 <div id="errorCard" class="card error-card hidden">
                     <div class="card-header error-header">
-                        <h3>⚠️ Service Communication Notice</h3>
+                        <h3>⚠️ Service Notice</h3>
                         <button class="btn btn-sm" id="btnDismissError">Dismiss</button>
                     </div>
                     <div class="card-body">
@@ -135,16 +135,16 @@
                 <section id="panel-leaderboard" class="tab-panel active" role="tabpanel">
                     <div class="panel-header">
                         <div>
-                            <h2>Hackathon Leaderboard</h2>
-                            <p class="subtitle">Rankings computed live by <code>LeaderboardService.getRankings()</code></p>
+                            <h2>Event Standings</h2>
+                            <p class="subtitle">Real-time ranking computed by <code>LeaderboardService.getRankings()</code></p>
                         </div>
-                        <div class="status-tag" id="leaderboardStatusTag">Evaluating...</div>
+                        <div id="flashNotice-leaderboard"></div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3>Official Event Standings</h3>
-                            <span class="note">Rule: Tied scores must break ties by earlier submission timestamp.</span>
+                            <h3>Hackathon Official Leaderboard</h3>
+                            <span class="note">Rule: Tied scores follow earlier submission time</span>
                         </div>
                         <div class="table-responsive">
                             <table class="data-table" id="leaderboardTable">
@@ -152,9 +152,9 @@
                                     <tr>
                                         <th>Rank</th>
                                         <th>Team</th>
-                                        <th>Score</th>
+                                        <th>Total Score</th>
                                         <th>Submission Time</th>
-                                        <th>Tie Status</th>
+                                        <th>Evaluation</th>
                                     </tr>
                                 </thead>
                                 <tbody id="leaderboardTbody">
@@ -162,9 +162,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="card-footer" id="leaderboardFooterNote">
-                            <!-- Populated dynamically -->
-                        </div>
+                        <div class="card-footer" id="leaderboardFooterNote"></div>
                     </div>
                 </section>
 
@@ -172,10 +170,10 @@
                 <section id="panel-deadlines" class="tab-panel" role="tabpanel">
                     <div class="panel-header">
                         <div>
-                            <h2>Event Submission Deadline Check</h2>
-                            <p class="subtitle">Timezone verification via <code>SubmissionService.isSubmissionAllowed()</code></p>
+                            <h2>Submission Verification</h2>
+                            <p class="subtitle">Regional deadline check via <code>SubmissionService.isSubmissionAllowed()</code></p>
                         </div>
-                        <div class="status-tag" id="deadlinesStatusTag">Evaluating...</div>
+                        <div id="flashNotice-deadlines"></div>
                     </div>
 
                     <div class="card">
@@ -196,7 +194,7 @@
                                 <span class="value badge-zone" id="dlEventZone">America/New_York (UTC-4)</span>
                             </div>
                             <div class="info-group">
-                                <span class="label">Candidate Submission Time</span>
+                                <span class="label">Submission Timestamp</span>
                                 <span class="value mono" id="dlSubmissionTime">2026-10-14T21:30:00Z (= 17:30 Local)</span>
                             </div>
                         </div>
@@ -211,18 +209,18 @@
                 <section id="panel-teams" class="tab-panel" role="tabpanel">
                     <div class="panel-header">
                         <div>
-                            <h2>Team Registry & Identity</h2>
-                            <p class="subtitle">Map lookup using <code>TeamService.getTeam(TeamId)</code></p>
+                            <h2>Team Directory</h2>
+                            <p class="subtitle">Identity lookup via <code>TeamService.getTeam(TeamId)</code></p>
                         </div>
-                        <div class="status-tag" id="teamsStatusTag">Evaluating...</div>
+                        <div id="flashNotice-teams"></div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3>Lookup Registered Team by Value Key</h3>
+                            <h3>Query Registered Team</h3>
                             <div class="lookup-bar">
                                 <input type="text" id="inputTeamLookup" value="team-cyber" class="input-sm" placeholder="Enter Team ID">
-                                <button class="btn btn-primary-sm" id="btnLookupTeam">Query TeamId</button>
+                                <button class="btn btn-primary-sm" id="btnLookupTeam">Query Team</button>
                             </div>
                         </div>
                         <div class="card-body" id="teamLookupResult">
@@ -235,24 +233,24 @@
                 <section id="panel-judging" class="tab-panel" role="tabpanel">
                     <div class="panel-header">
                         <div>
-                            <h2>Judging Scoring & Callback Retries</h2>
-                            <p class="subtitle">Webhook idempotency via <code>JudgingService.recordScore()</code></p>
+                            <h2>Judging & Evaluation Scoring</h2>
+                            <p class="subtitle">Scoring service via <code>JudgingService.recordScore()</code></p>
                         </div>
-                        <div class="status-tag" id="judgingStatusTag">Evaluating...</div>
+                        <div id="flashNotice-judging"></div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3>Simulated Webhook Scoring Callback</h3>
-                            <button class="btn btn-primary-sm" id="btnSimulateRetry">Simulate 2x Callback Retry</button>
+                            <h3>Automated Webhook Scoring</h3>
+                            <button class="btn btn-primary-sm" id="btnSimulateRetry">Test Scoring Webhook</button>
                         </div>
                         <div class="card-body grid-3">
                             <div class="metric-card">
-                                <span class="metric-label">Evaluation ID</span>
+                                <span class="metric-label">Evaluation Reference</span>
                                 <span class="metric-val mono">eval-101</span>
                             </div>
                             <div class="metric-card">
-                                <span class="metric-label">Total Score (sub-101)</span>
+                                <span class="metric-label">Calculated Score (sub-101)</span>
                                 <span class="metric-val mono" id="judgingTotalScore">--</span>
                             </div>
                             <div class="metric-card">
@@ -268,19 +266,19 @@
                 <section id="panel-access" class="tab-panel" role="tabpanel">
                     <div class="panel-header">
                         <div>
-                            <h2>Judge Access Control & Event Isolation</h2>
-                            <p class="subtitle">Multi-tenant isolation via <code>SubmissionService.getSubmissionForJudge()</code></p>
+                            <h2>Review Access Control</h2>
+                            <p class="subtitle">Event isolation via <code>SubmissionService.getSubmissionForJudge()</code></p>
                         </div>
-                        <div class="status-tag" id="accessStatusTag">Evaluating...</div>
+                        <div id="flashNotice-access"></div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3>Cross-Event Access Attempt</h3>
-                            <span class="note">Judge J1 (Hackathon 2026) requests Submission S201 (Design Quest 2026)</span>
+                            <h3>Cross-Event Access Verification</h3>
+                            <span class="note">Judge J1 (Hackathon) reviews Submission S201 (Design Quest)</span>
                         </div>
                         <div class="card-body" id="accessResultBox">
-                            <div class="loading-state">Verifying access control policy...</div>
+                            <div class="loading-state">Verifying access policy...</div>
                         </div>
                     </div>
                 </section>
@@ -289,16 +287,16 @@
                 <section id="panel-reservations" class="tab-panel" role="tabpanel">
                     <div class="panel-header">
                         <div>
-                            <h2>Booth & Presentation Slot Reservations</h2>
-                            <p class="subtitle">Thread-safe capacity check via <code>ReservationService.reserveSlot()</code></p>
+                            <h2>Venue Booth Reservations</h2>
+                            <p class="subtitle">Capacity enforcement via <code>ReservationService.reserveSlot()</code></p>
                         </div>
-                        <div class="status-tag" id="reservationStatusTag">Evaluating...</div>
+                        <div id="flashNotice-reservations"></div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3>Simultaneous Concurrent Reservation Burst</h3>
-                            <button class="btn btn-primary-sm" id="btnBurstReservations">⚡ Trigger 10-Thread Concurrent Burst</button>
+                            <h3>Innovation Lab A — Booth Reservations</h3>
+                            <button class="btn btn-primary-sm" id="btnBurstReservations">⚡ Test Concurrent Booking</button>
                         </div>
                         <div class="card-body" id="reservationResultBox">
                             <div class="loading-state">Loading reservation slots...</div>
@@ -310,19 +308,19 @@
                 <section id="panel-matching" class="tab-panel" role="tabpanel">
                     <div class="panel-header">
                         <div>
-                            <h2>Judge Assignment Optimization</h2>
-                            <p class="subtitle">Maximum bipartite matching via <code>JudgeMatchingService.assignJudges()</code></p>
+                            <h2>Judge Allocation</h2>
+                            <p class="subtitle">Round assignment via <code>JudgeMatchingService.assignJudges()</code></p>
                         </div>
-                        <div class="status-tag" id="matchingStatusTag">Evaluating...</div>
+                        <div id="flashNotice-matching"></div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
                             <h3>Round 1 Judge-to-Submission Assignments</h3>
-                            <span class="note">Goal: Maximize assigned submissions (Target: 4 matches)</span>
+                            <span class="note">Allocates judges based on category qualifications</span>
                         </div>
                         <div class="card-body" id="matchingResultBox">
-                            <div class="loading-state">Computing matching...</div>
+                            <div class="loading-state">Computing allocations...</div>
                         </div>
                     </div>
                 </section>
@@ -332,15 +330,15 @@
                     <div class="panel-header">
                         <div>
                             <h2>Demo Day Auditorium Schedule</h2>
-                            <p class="subtitle">Weighted interval scheduling via <code>DemoScheduleService.scheduleDemos()</code></p>
+                            <p class="subtitle">Presentation slots via <code>DemoScheduleService.scheduleDemos()</code></p>
                         </div>
-                        <div class="status-tag" id="scheduleStatusTag">Evaluating...</div>
+                        <div id="flashNotice-schedule"></div>
                     </div>
 
                     <div class="card">
                         <div class="card-header">
                             <h3>Selected Demo Slots (Non-Overlapping)</h3>
-                            <span class="note">Goal: Maximize cumulative priority score (Target: 65 pts)</span>
+                            <span class="note">Optimized for maximum schedule impact</span>
                         </div>
                         <div class="card-body" id="scheduleResultBox">
                             <div class="loading-state">Computing demo schedule...</div>

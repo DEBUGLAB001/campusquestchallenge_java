@@ -37,7 +37,7 @@
             }
             return await resp.json();
         } catch (err) {
-            showError(`API error on ${endpoint}: ${err.message}`);
+            showError(`Communication notice on ${endpoint}: ${err.message}`);
             throw err;
         }
     }
@@ -76,6 +76,21 @@
         if (toast) toast.classList.add('hidden');
     }
 
+    // Temporary Flashing Notification (Flashes for 3.5 seconds then fades away)
+    function triggerFlash(containerId, message, type = 'success') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        container.innerHTML = `
+            <div class="flash-pill ${type}">
+                <span>${type === 'success' ? '✓' : 'ℹ️'}</span>
+                <span>${message}</span>
+            </div>
+        `;
+        setTimeout(() => {
+            if (container) container.innerHTML = '';
+        }, 3600);
+    }
+
     // Switch Tab
     function switchTab(tabName) {
         activeTab = tabName;
@@ -99,7 +114,7 @@
             const bootId = data.boot_id;
             const startedAt = data.started_at;
 
-            document.getElementById('bootIdDisplay').textContent = bootId ? bootId.substring(0, 8) + '...' : 'Unknown';
+            document.getElementById('bootIdDisplay').textContent = bootId ? bootId.substring(0, 8) + '...' : 'Online';
             document.getElementById('startedAtDisplay').textContent = startedAt || '--:--:--';
             document.getElementById('healthDot').className = 'status-dot green';
 
@@ -108,21 +123,20 @@
             } else if (currentBootId !== bootId) {
                 // Server restarted!
                 currentBootId = bootId;
-                showToast('Changes applied! Live preview reloaded.', false);
+                showToast('Changes applied! Preview updated.', false);
                 setTimeout(hideToast, 3500);
                 refreshActiveScreen();
             }
 
             if (isRestarting) {
                 isRestarting = false;
-                showToast('Changes applied! Live preview reloaded.', false);
+                showToast('Changes applied! Preview updated.', false);
                 setTimeout(hideToast, 3500);
                 refreshActiveScreen();
             }
         } catch (e) {
-            // Server might be compiling / restarting
             document.getElementById('healthDot').className = 'status-dot red';
-            document.getElementById('bootIdDisplay').textContent = 'Restarting...';
+            document.getElementById('bootIdDisplay').textContent = 'Reconnecting...';
             if (!isRestarting) {
                 isRestarting = true;
                 showToast('Applying your changes...', true);
@@ -135,7 +149,6 @@
         try {
             const data = await apiFetch('api/leaderboard');
             const tbody = document.getElementById('leaderboardTbody');
-            const statusTag = document.getElementById('leaderboardStatusTag');
             const footerNote = document.getElementById('leaderboardFooterNote');
 
             if (!data || !data.entries) return;
@@ -147,16 +160,16 @@
                     <tr>
                         <td><span class="rank-badge ${rankClass}">#${entry.rank}</span></td>
                         <td><strong>${entry.teamName}</strong> <span class="mono" style="font-size:0.75rem; color:#64748b">(${entry.teamId})</span></td>
-                        <td><strong style="color:#6366f1">${entry.score.toFixed(1)} pts</strong></td>
+                        <td><strong style="color:#4f46e5">${entry.score.toFixed(1)} pts</strong></td>
                         <td class="mono" style="font-size:0.8rem">${entry.submissionTime}</td>
                         <td>
                             ${entry.score === 95.0 
                                 ? (entry.rank === 1 && entry.teamId === 'team-cyber'
-                                    ? '<span class="status-tag solved" style="font-size:0.72rem">Solved: Earlier Time Ranks #1</span>'
+                                    ? '<span class="status-pill success">Verified Standing</span>'
                                     : entry.rank === 1 && entry.teamId === 'team-algo'
-                                    ? '<span class="status-tag defect" style="font-size:0.72rem">Defect: Later Time Inverted to #1</span>'
-                                    : '<span class="status-tag" style="font-size:0.72rem">Tied Score</span>')
-                                : '<span style="color:#64748b">-</span>'}
+                                    ? '<span class="status-pill danger">Tie Inverted</span>'
+                                    : '<span class="status-pill neutral">Tied Score</span>')
+                                : '<span class="status-pill neutral">Finalized</span>'}
                         </td>
                     </tr>
                 `;
@@ -164,13 +177,9 @@
             tbody.innerHTML = html;
 
             if (data.tiedOrderedCorrectly) {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: Tied scores break by submission time';
-                footerNote.innerHTML = '<span style="color:#10b981">✓ Correct Leaderboard: CyberKnights submitted at 10:00Z and is properly ranked #1 ahead of AlgoTitans (10:30Z).</span>';
+                footerNote.innerHTML = '<span style="color:#059669">✓ Official Standings: Tie resolved by earlier submission timestamp.</span>';
             } else {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Tie-break inverted';
-                footerNote.innerHTML = '<span style="color:#ef4444">✗ Defect 1: AlgoTitans submitted later (10:30Z) but is incorrectly ranked #1 ahead of CyberKnights (10:00Z).</span>';
+                footerNote.innerHTML = '<span style="color:#dc2626">Note: Standings currently reflect raw rank order.</span>';
             }
         } catch (e) {}
     }
@@ -179,23 +188,18 @@
     async function refreshDeadlines() {
         try {
             const data = await apiFetch('api/events/deadline-check');
-            const statusTag = document.getElementById('deadlinesStatusTag');
             const box = document.getElementById('dlValidationBox');
             const res = document.getElementById('dlValidationResult');
             const desc = document.getElementById('dlValidationDesc');
 
             if (data.allowed) {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: Configured event timezone respected';
                 box.className = 'validation-box accepted';
-                res.textContent = '✓ STATUS: ACCEPTED (ON TIME)';
-                desc.textContent = 'Submission at 21:30 UTC correctly evaluated in America/New_York (17:30 local), before the 18:00 local deadline.';
+                res.textContent = 'STATUS: ACCEPTED (ON TIME)';
+                desc.textContent = 'Submission at 21:30 UTC verified within 18:00 local deadline for America/New_York (17:30 EDT).';
             } else {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Event timezone ignored';
                 box.className = 'validation-box rejected';
-                res.textContent = '✗ STATUS: REJECTED (DEADLINE_EXPIRED)';
-                desc.textContent = 'Defect 2: Event deadline 18:00 was parsed as UTC (18:00Z). Candidate submission at 21:30 UTC was falsely rejected despite being 17:30 local!';
+                res.textContent = 'STATUS: REJECTED (DEADLINE_EXPIRED)';
+                desc.textContent = 'Submission timestamp was evaluated against 18:00 UTC instead of local event timezone.';
             }
         } catch (e) {}
     }
@@ -205,27 +209,21 @@
         const teamIdInput = document.getElementById('inputTeamLookup').value || 'team-cyber';
         try {
             const data = await apiFetch(`api/teams/lookup?id=${encodeURIComponent(teamIdInput)}`);
-            const statusTag = document.getElementById('teamsStatusTag');
             const resultBox = document.getElementById('teamLookupResult');
 
             if (data.found) {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: Equivalent TeamId finds record';
                 resultBox.innerHTML = `
-                    <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:1.25rem;">
-                        <h4 style="color:#34d399; margin-bottom:0.5rem">✓ Team Found: ${data.team.name}</h4>
-                        <p><strong>Track:</strong> ${data.team.track} | <strong>Members:</strong> ${data.team.memberCount} | <strong>Status:</strong> ${data.team.status}</p>
-                        <p class="mono" style="font-size:0.8rem; color:#94a3b8; margin-top:0.4rem">TeamId: ${data.searchedId}</p>
+                    <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:1.25rem;">
+                        <h4 style="color:#065f46; margin-bottom:0.4rem; font-size:1.05rem">✓ ${data.team.name}</h4>
+                        <p style="color:#334155"><strong>Track:</strong> ${data.team.track} &nbsp;|&nbsp; <strong>Roster:</strong> ${data.team.memberCount} members &nbsp;|&nbsp; <strong>Status:</strong> <span class="status-pill success">${data.team.status}</span></p>
+                        <p class="mono" style="font-size:0.8rem; color:#64748b; margin-top:0.35rem">Team ID: ${data.searchedId}</p>
                     </div>
                 `;
             } else {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Map key lookup failed';
                 resultBox.innerHTML = `
-                    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:1.25rem;">
-                        <h4 style="color:#f87171; margin-bottom:0.5rem">✗ Lookup Failed for "${data.searchedId}"</h4>
-                        <p style="color:#fca5a5">${data.error}</p>
-                        <p style="font-size:0.8rem; color:#94a3b8; margin-top:0.4rem">Defect 3: TeamId class lacks a proper hashCode() implementation matching value equality.</p>
+                    <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:1.25rem;">
+                        <h4 style="color:#991b1b; margin-bottom:0.4rem">No Active Record for "${data.searchedId}"</h4>
+                        <p style="color:#b91c1c; font-size:0.9rem">${data.error}</p>
                     </div>
                 `;
             }
@@ -236,7 +234,6 @@
     async function refreshJudging() {
         try {
             const data = await apiFetch('api/judging/status?subId=sub-101');
-            const statusTag = document.getElementById('judgingStatusTag');
             const totalDisplay = document.getElementById('judgingTotalScore');
             const countDisplay = document.getElementById('judgingCount');
             const note = document.getElementById('judgingFooterNote');
@@ -245,13 +242,9 @@
             countDisplay.textContent = data.evaluationCount;
 
             if (data.isDuplicated) {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Score duplicated on retry';
-                note.innerHTML = '<span style="color:#f87171">✗ Defect 4: Evaluation score duplicated (' + data.totalScore + ' pts)! Callback retry was not idempotent.</span>';
+                note.innerHTML = '<span style="color:#dc2626">Notice: Score inflated (' + data.totalScore + ' pts) across duplicate callback submissions.</span>';
             } else {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: Callback retry is idempotent';
-                note.innerHTML = '<span style="color:#34d399">✓ Correct: Score idempotent at 25.0 pts across duplicate retries.</span>';
+                note.innerHTML = '<span style="color:#059669">✓ Evaluation score verified at 25.0 pts (idempotent scoring).</span>';
             }
         } catch (e) {}
     }
@@ -260,27 +253,22 @@
     async function refreshAccess() {
         try {
             const res = await apiFetch('api/submissions/judge-access?judgeId=judge-alpha&submissionId=sub-201');
-            const statusTag = document.getElementById('accessStatusTag');
             const box = document.getElementById('accessResultBox');
 
             if (res.isForbidden || (res.data && res.data.code === 'ACCESS_DENIED')) {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: 403 Forbidden across events';
                 box.innerHTML = `
-                    <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:8px; padding:1.25rem;">
-                        <h4 style="color:#34d399; margin-bottom:0.5rem">✓ 403 Forbidden: Access Denied</h4>
-                        <p>Judge "judge-alpha" (event-hackathon) was denied access to submission "sub-201" (event-designquest).</p>
-                        <p class="mono" style="font-size:0.8rem; color:#94a3b8; margin-top:0.4rem">${res.data.error || 'Unauthorized cross-event access'}</p>
+                    <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:1.25rem;">
+                        <h4 style="color:#065f46; margin-bottom:0.4rem">✓ Access Restricted (403 Forbidden)</h4>
+                        <p style="color:#334155">Judge "judge-alpha" (event-hackathon) cannot access submissions from "event-designquest".</p>
+                        <p class="mono" style="font-size:0.8rem; color:#64748b; margin-top:0.35rem">Multi-tenant boundary strictly enforced.</p>
                     </div>
                 `;
             } else {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Unauthorized access permitted';
                 box.innerHTML = `
-                    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:1.25rem;">
-                        <h4 style="color:#f87171; margin-bottom:0.5rem">✗ Security Defect: Unauthorized Submission Leaked!</h4>
-                        <p style="color:#fca5a5">Judge Alan Turing (event-hackathon) accessed submission "SolarGrid UI" belonging to event-designquest.</p>
-                        <p class="mono" style="font-size:0.8rem; color:#94a3b8; margin-top:0.4rem">Missing event assignment verification in getSubmissionForJudge().</p>
+                    <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:1.25rem;">
+                        <h4 style="color:#991b1b; margin-bottom:0.4rem">Submission Inspection Permitted</h4>
+                        <p style="color:#b91c1c">Judge Alan Turing (event-hackathon) accessed submission "SolarGrid UI" from event-designquest.</p>
+                        <p class="mono" style="font-size:0.8rem; color:#64748b; margin-top:0.35rem">Cross-event authorization boundary not enforced.</p>
                     </div>
                 `;
             }
@@ -291,7 +279,6 @@
     async function refreshReservations() {
         try {
             const slots = await apiFetch('api/reservations');
-            const statusTag = document.getElementById('reservationStatusTag');
             const box = document.getElementById('reservationResultBox');
 
             if (!slots || !slots.length) return;
@@ -302,28 +289,24 @@
             let html = `
                 <div class="grid-2" style="margin-bottom:1rem">
                     <div class="info-group">
-                        <span class="label">Reservation Slot</span>
+                        <span class="label">Location</span>
                         <span class="value">${slot.name} (${slot.slotId})</span>
                     </div>
                     <div class="info-group">
-                        <span class="label">Configured Capacity</span>
+                        <span class="label">Booth Capacity</span>
                         <span class="value mono">${slot.capacity} teams max</span>
                     </div>
                 </div>
                 <div class="metric-card" style="margin-bottom:1rem">
-                    <span class="metric-label">Current Bookings</span>
-                    <span class="metric-val mono ${exceeded ? 'text-danger' : ''}" style="${exceeded ? 'color:#f87171' : 'color:#34d399'}">${count} / ${slot.capacity}</span>
+                    <span class="metric-label">Confirmed Reservations</span>
+                    <span class="metric-val mono" style="${exceeded ? 'color:#dc2626' : 'color:#059669'}">${count} / ${slot.capacity}</span>
                 </div>
             `;
 
             if (exceeded) {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Capacity Exceeded';
-                html += `<p style="color:#f87171">✗ Race condition: ${count} teams reserved slot with capacity ${slot.capacity}!</p>`;
+                html += `<p style="color:#dc2626; font-size:0.88rem">Overbooked: ${count} teams confirmed for slot with capacity ${slot.capacity}.</p>`;
             } else {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: Capacity strictly enforced';
-                html += `<p style="color:#34d399">✓ Thread-safe: Reservations never exceed max capacity ${slot.capacity}.</p>`;
+                html += `<p style="color:#059669; font-size:0.88rem">Confirmed: Bookings are strictly maintained within max capacity ${slot.capacity}.</p>`;
             }
 
             box.innerHTML = html;
@@ -334,22 +317,21 @@
     async function refreshMatching() {
         try {
             const data = await apiFetch('api/matching');
-            const statusTag = document.getElementById('matchingStatusTag');
             const box = document.getElementById('matchingResultBox');
 
             let html = `
                 <div class="grid-2" style="margin-bottom:1rem">
                     <div class="metric-card">
-                        <span class="metric-label">Matched Submissions</span>
+                        <span class="metric-label">Assigned Submissions</span>
                         <span class="metric-val mono">${data.matchedCount} / ${data.targetMaximum}</span>
                     </div>
                     <div class="info-group">
-                        <span class="label">Matching Status</span>
-                        <span class="value">${data.isMaximumMatching ? 'Optimal Maximum Matching' : 'Suboptimal Greedy Matching'}</span>
+                        <span class="label">Allocation Status</span>
+                        <span class="value">${data.isMaximumMatching ? 'Full Coverage (Optimal)' : 'Partial Allocation (Greedy)'}</span>
                     </div>
                 </div>
-                <div style="background:rgba(255,255,255,0.02); padding:1rem; border-radius:8px;">
-                    <h5 style="color:#94a3b8; margin-bottom:0.5rem">Judge Assignments:</h5>
+                <div style="background:#f8fafc; padding:1rem; border-radius:8px; border:1px solid #e2e8f0;">
+                    <h5 style="color:#475569; margin-bottom:0.5rem; font-size:0.82rem">Assigned Matches:</h5>
                     <ul style="list-style:none; padding-left:0;">
             `;
 
@@ -357,14 +339,6 @@
                 html += `<li class="mono" style="padding:0.25rem 0; font-size:0.85rem">👨‍⚖️ ${judge} ➔ 📄 ${sub}</li>`;
             }
             html += '</ul></div>';
-
-            if (data.isMaximumMatching) {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: Maximum bipartite matching (4/4)';
-            } else {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Greedy stalled (' + data.matchedCount + '/4)';
-            }
 
             box.innerHTML = html;
         } catch (e) {}
@@ -374,22 +348,21 @@
     async function refreshSchedule() {
         try {
             const data = await apiFetch('api/schedule');
-            const statusTag = document.getElementById('scheduleStatusTag');
             const box = document.getElementById('scheduleResultBox');
 
             let html = `
                 <div class="grid-2" style="margin-bottom:1rem">
                     <div class="metric-card">
-                        <span class="metric-label">Total Priority Score</span>
+                        <span class="metric-label">Cumulative Priority Impact</span>
                         <span class="metric-val mono">${data.totalPriority} / ${data.optimalTarget} pts</span>
                     </div>
                     <div class="info-group">
-                        <span class="label">Optimization State</span>
-                        <span class="value">${data.isOptimal ? 'Optimal Weighted Schedule (DP)' : 'Suboptimal Schedule (Greedy)'}</span>
+                        <span class="label">Schedule Strategy</span>
+                        <span class="value">${data.isOptimal ? 'Optimal Dynamic Schedule' : 'Greedy Schedule'}</span>
                     </div>
                 </div>
-                <div style="background:rgba(255,255,255,0.02); padding:1rem; border-radius:8px;">
-                    <h5 style="color:#94a3b8; margin-bottom:0.5rem">Scheduled Demo Intervals:</h5>
+                <div style="background:#f8fafc; padding:1rem; border-radius:8px; border:1px solid #e2e8f0;">
+                    <h5 style="color:#475569; margin-bottom:0.5rem; font-size:0.82rem">Confirmed Presentation Slots:</h5>
                     <ul style="list-style:none; padding-left:0;">
             `;
 
@@ -398,17 +371,9 @@
                 const startM = (slot.startMinute % 60).toString().padStart(2, '0');
                 const endH = Math.floor(slot.endMinute / 60);
                 const endM = (slot.endMinute % 60).toString().padStart(2, '0');
-                html += `<li class="mono" style="padding:0.25rem 0; font-size:0.85rem">⏱️ ${startH}:${startM} - ${endH}:${endM} | ${slot.teamName} (Priority: ${slot.priority})</li>`;
+                html += `<li class="mono" style="padding:0.25rem 0; font-size:0.85rem">⏱️ ${startH}:${startM} - ${endH}:${endM} | <strong>${slot.teamName}</strong> (Priority: ${slot.priority})</li>`;
             });
             html += '</ul></div>';
-
-            if (data.isOptimal) {
-                statusTag.className = 'status-tag solved';
-                statusTag.textContent = '✓ Solved: Maximum Priority Score (65 pts)';
-            } else {
-                statusTag.className = 'status-tag defect';
-                statusTag.textContent = '✗ Seeded Defect: Suboptimal Score (' + data.totalPriority + ' pts)';
-            }
 
             box.innerHTML = html;
         } catch (e) {}
@@ -436,9 +401,15 @@
         });
 
         // Team lookup button
-        document.getElementById('btnLookupTeam')?.addEventListener('click', refreshTeams);
+        document.getElementById('btnLookupTeam')?.addEventListener('click', () => {
+            refreshTeams();
+            triggerFlash('flashNotice-teams', 'Team directory queried', 'success');
+        });
         document.getElementById('inputTeamLookup')?.addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') refreshTeams();
+            if (e.key === 'Enter') {
+                refreshTeams();
+                triggerFlash('flashNotice-teams', 'Team directory queried', 'success');
+            }
         });
 
         // Judging simulate retry button
@@ -446,18 +417,22 @@
             await apiFetch('api/judging/record-score?evalId=eval-101&subId=sub-101&judgeId=judge-alpha&score=25.0', { method: 'POST' });
             await apiFetch('api/judging/record-score?evalId=eval-101&subId=sub-101&judgeId=judge-alpha&score=25.0', { method: 'POST' });
             refreshJudging();
+            triggerFlash('flashNotice-judging', 'Scoring webhook evaluation recorded', 'success');
         });
 
         // Concurrent reservation burst button
         document.getElementById('btnBurstReservations')?.addEventListener('click', async () => {
             await apiFetch('api/reservations/simulate-burst?slotId=slot-lab-a', { method: 'POST' });
             refreshReservations();
+            triggerFlash('flashNotice-reservations', 'Concurrent burst simulation executed', 'warn');
         });
 
         // Reset data store button
         document.getElementById('btnResetStore')?.addEventListener('click', async () => {
             await apiFetch('api/admin/reset', { method: 'POST' });
             refreshActiveScreen();
+            showToast('Data store reset to initial state.', false);
+            setTimeout(hideToast, 3000);
         });
 
         // Dismiss error button
