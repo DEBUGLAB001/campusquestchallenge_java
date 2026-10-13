@@ -2,10 +2,13 @@ package com.campusquest.service;
 
 import com.campusquest.model.*;
 
+import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class DataStore {
 
     private final Map<String, Event> events = new ConcurrentHashMap<>();
