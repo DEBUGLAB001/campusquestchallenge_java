@@ -5,10 +5,19 @@ cd "$(dirname "$0")"
 
 # Maven command resolution
 MVN_CMD="mvn"
-if command -v mvn.cmd >/dev/null 2>&1; then
-    MVN_CMD="mvn.cmd"
+if command -v cmd.exe >/dev/null 2>&1; then
+    MVN_CMD="cmd.exe /c mvn"
+elif command -v mvn >/dev/null 2>&1; then
+    MVN_CMD="mvn"
 elif [ -x "./mvnw" ]; then
     MVN_CMD="./mvnw"
+elif command -v mvn.cmd >/dev/null 2>&1; then
+    MVN_CMD="mvn.cmd"
+fi
+
+JAVA_CMD="java"
+if ! command -v java >/dev/null 2>&1 && command -v java.exe >/dev/null 2>&1; then
+    JAVA_CMD="java.exe"
 fi
 
 SERVER_PID=""
@@ -39,7 +48,7 @@ start_server() {
     # Copy to runner.jar to prevent OS file locks on target/app.jar during recompilation
     cp target/app.jar target/runner.jar
     echo "[watcher] Launching server on 0.0.0.0:3000..." >&2
-    java -jar target/runner.jar 1>&2 &
+    "$JAVA_CMD" -jar target/runner.jar 1>&2 &
     SERVER_PID=$!
     echo "[watcher] Server running with PID $SERVER_PID" >&2
 }

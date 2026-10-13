@@ -1,6 +1,7 @@
 package com.campusquest.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ReservationSlot {
@@ -13,7 +14,7 @@ public class ReservationSlot {
         this.slotId = slotId;
         this.name = name;
         this.capacity = capacity;
-        this.reservedTeams = new ArrayList<>();
+        this.reservedTeams = Collections.synchronizedList(new ArrayList<>());
     }
 
     public String getSlotId() {
