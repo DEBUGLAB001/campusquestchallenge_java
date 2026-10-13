@@ -69,9 +69,9 @@ public class DataStore {
         submissions.put(s201.getSubmissionId(), s201);
 
         // 4. Seed Judges
-        Judge j1 = new Judge("judge-alpha", "Dr. Alan Turing", "event-hackathon", List.of("sub-101", "sub-102"));
+        Judge j1 = new Judge("judge-alpha", "Dr. Alan Turing", "event-hackathon", List.of("sub-102", "sub-101"));
         Judge j2 = new Judge("judge-beta", "Prof. Grace Hopper", "event-hackathon", List.of("sub-102"));
-        Judge j3 = new Judge("judge-gamma", "Dr. Claude Shannon", "event-hackathon", List.of("sub-103", "sub-104"));
+        Judge j3 = new Judge("judge-gamma", "Dr. Claude Shannon", "event-hackathon", List.of("sub-104", "sub-103"));
         Judge j4 = new Judge("judge-delta", "Dr. Ada Lovelace", "event-hackathon", List.of("sub-104"));
         Judge jExternal = new Judge("judge-external", "Dr. Linus Torvalds", "event-designquest", List.of("sub-201"));
 
