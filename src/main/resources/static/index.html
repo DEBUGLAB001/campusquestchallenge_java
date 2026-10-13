@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusQuest — Collegiate Hackathon & Quest Platform</title>
+    <meta name="description" content="CampusQuest hackathon management dashboard with live metrics, leaderboard, scheduling, and judge assignments.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Top Navigation -->
+        <header class="top-nav">
+            <div class="brand">
+                <div class="logo-mark">CQ</div>
+                <div class="brand-text">
+                    <h1>CampusQuest</h1>
+                    <span class="sub-brand">Hackathon & Event Platform</span>
+                </div>
+            </div>
+
+            <div class="nav-metrics">
+                <div class="pill-badge" id="healthPill" title="Server Health & Process ID">
+                    <span class="status-dot green" id="healthDot"></span>
+                    <span class="pill-label">Boot:</span>
+                    <span class="mono" id="bootIdDisplay">Connecting...</span>
+                </div>
+                <div class="pill-badge" id="uptimePill">
+                    <span class="pill-label">Started:</span>
+                    <span class="mono" id="startedAtDisplay">--:--:--</span>
+                </div>
+                <button class="btn btn-outline-sm" id="btnResetStore" title="Reset in-memory data store">
+                    🔄 Reset Data
+                </button>
+            </div>
+        </header>
+
+        <!-- Live Status Banner / Toast -->
+        <div id="reloadNotification" class="toast-banner hidden">
+            <div class="toast-content">
+                <span class="spinner" id="toastSpinner"></span>
+                <span id="toastMessage">Applying your changes...</span>
+            </div>
+        </div>
+
+        <!-- Main Layout with Sidebar and Content -->
+        <div class="dashboard-container">
+            <!-- Sidebar Navigation Tabs -->
+            <nav class="sidebar" aria-label="Feature modules">
+                <div class="sidebar-heading">CHALLENGE MODULES</div>
+                <ul class="nav-list" role="tablist">
+                    <li>
+                        <button class="nav-item active" data-tab="leaderboard" id="tab-leaderboard" role="tab">
+                            <span class="icon">🏆</span>
+                            <span class="title">Leaderboard</span>
+                            <span class="badge" id="badge-leaderboard">Tie-Break</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item" data-tab="deadlines" id="tab-deadlines" role="tab">
+                            <span class="icon">⏰</span>
+                            <span class="title">Event Deadlines</span>
+                            <span class="badge" id="badge-deadlines">Timezone</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item" data-tab="teams" id="tab-teams" role="tab">
+                            <span class="icon">👥</span>
+                            <span class="title">Team Registry</span>
+                            <span class="badge" id="badge-teams">Lookup</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item" data-tab="judging" id="tab-judging" role="tab">
+                            <span class="icon">⚖️</span>
+                            <span class="title">Judging Scores</span>
+                            <span class="badge" id="badge-judging">Retry</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item" data-tab="access" id="tab-access" role="tab">
+                            <span class="icon">🔒</span>
+                            <span class="title">Judge Access</span>
+                            <span class="badge" id="badge-access">Isolation</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item" data-tab="reservations" id="tab-reservations" role="tab">
+                            <span class="icon">🎪</span>
+                            <span class="title">Reservations</span>
+                            <span class="badge" id="badge-reservations">Concurrency</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item" data-tab="matching" id="tab-matching" role="tab">
+                            <span class="icon">🎯</span>
+                            <span class="title">Judge Matching</span>
+                            <span class="badge" id="badge-matching">Bipartite</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item" data-tab="schedule" id="tab-schedule" role="tab">
+                            <span class="icon">📅</span>
+                            <span class="title">Demo Schedule</span>
+                            <span class="badge" id="badge-schedule">Priority</span>
+                        </button>
+                    </li>
+                </ul>
+                <div class="sidebar-footer">
+                    <div class="poll-indicator">
+                        <span class="pulse-dot"></span>
+                        <span class="poll-text">Live Poll: 1.5s (no-store)</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content Panels -->
+            <main class="content-panel" id="mainContent">
+                <!-- Friendly Error Card (shown if network/API drops) -->
+                <div id="errorCard" class="card error-card hidden">
+                    <div class="card-header error-header">
+                        <h3>⚠️ Service Communication Notice</h3>
+                        <button class="btn btn-sm" id="btnDismissError">Dismiss</button>
+                    </div>
+                    <div class="card-body">
+                        <p id="errorMessage">Unable to fetch live telemetry. Reconnecting...</p>
+                    </div>
+                </div>
+
+                <!-- 1. Leaderboard Panel -->
+                <section id="panel-leaderboard" class="tab-panel active" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Hackathon Leaderboard</h2>
+                            <p class="subtitle">Rankings computed live by <code>LeaderboardService.getRankings()</code></p>
+                        </div>
+                        <div class="status-tag" id="leaderboardStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Official Event Standings</h3>
+                            <span class="note">Rule: Tied scores must break ties by earlier submission timestamp.</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" id="leaderboardTable">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Team</th>
+                                        <th>Score</th>
+                                        <th>Submission Time</th>
+                                        <th>Tie Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardTbody">
+                                    <tr><td colspan="5" class="loading-td">Loading standings...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer" id="leaderboardFooterNote">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Deadlines Panel -->
+                <section id="panel-deadlines" class="tab-panel" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Event Submission Deadline Check</h2>
+                            <p class="subtitle">Timezone verification via <code>SubmissionService.isSubmissionAllowed()</code></p>
+                        </div>
+                        <div class="status-tag" id="deadlinesStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Campus Hackathon 2026 — Deadline Validation</h3>
+                        </div>
+                        <div class="card-body grid-2">
+                            <div class="info-group">
+                                <span class="label">Event ID</span>
+                                <span class="value" id="dlEventId">event-hackathon</span>
+                            </div>
+                            <div class="info-group">
+                                <span class="label">Configured Deadline</span>
+                                <span class="value mono" id="dlConfigDeadline">2026-10-14T18:00:00 (18:00 Local)</span>
+                            </div>
+                            <div class="info-group">
+                                <span class="label">Configured Event Zone</span>
+                                <span class="value badge-zone" id="dlEventZone">America/New_York (UTC-4)</span>
+                            </div>
+                            <div class="info-group">
+                                <span class="label">Candidate Submission Time</span>
+                                <span class="value mono" id="dlSubmissionTime">2026-10-14T21:30:00Z (= 17:30 Local)</span>
+                            </div>
+                        </div>
+                        <div class="validation-box" id="dlValidationBox">
+                            <div class="validation-result" id="dlValidationResult">Evaluating...</div>
+                            <p class="validation-desc" id="dlValidationDesc"></p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Teams Panel -->
+                <section id="panel-teams" class="tab-panel" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Team Registry & Identity</h2>
+                            <p class="subtitle">Map lookup using <code>TeamService.getTeam(TeamId)</code></p>
+                        </div>
+                        <div class="status-tag" id="teamsStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Lookup Registered Team by Value Key</h3>
+                            <div class="lookup-bar">
+                                <input type="text" id="inputTeamLookup" value="team-cyber" class="input-sm" placeholder="Enter Team ID">
+                                <button class="btn btn-primary-sm" id="btnLookupTeam">Query TeamId</button>
+                            </div>
+                        </div>
+                        <div class="card-body" id="teamLookupResult">
+                            <div class="loading-state">Querying registry...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Judging Panel -->
+                <section id="panel-judging" class="tab-panel" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Judging Scoring & Callback Retries</h2>
+                            <p class="subtitle">Webhook idempotency via <code>JudgingService.recordScore()</code></p>
+                        </div>
+                        <div class="status-tag" id="judgingStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Simulated Webhook Scoring Callback</h3>
+                            <button class="btn btn-primary-sm" id="btnSimulateRetry">Simulate 2x Callback Retry</button>
+                        </div>
+                        <div class="card-body grid-3">
+                            <div class="metric-card">
+                                <span class="metric-label">Evaluation ID</span>
+                                <span class="metric-val mono">eval-101</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Total Score (sub-101)</span>
+                                <span class="metric-val mono" id="judgingTotalScore">--</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Evaluations Recorded</span>
+                                <span class="metric-val mono" id="judgingCount">--</span>
+                            </div>
+                        </div>
+                        <div class="card-footer" id="judgingFooterNote"></div>
+                    </div>
+                </section>
+
+                <!-- 5. Access Panel -->
+                <section id="panel-access" class="tab-panel" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Judge Access Control & Event Isolation</h2>
+                            <p class="subtitle">Multi-tenant isolation via <code>SubmissionService.getSubmissionForJudge()</code></p>
+                        </div>
+                        <div class="status-tag" id="accessStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Cross-Event Access Attempt</h3>
+                            <span class="note">Judge J1 (Hackathon 2026) requests Submission S201 (Design Quest 2026)</span>
+                        </div>
+                        <div class="card-body" id="accessResultBox">
+                            <div class="loading-state">Verifying access control policy...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. Reservations Panel -->
+                <section id="panel-reservations" class="tab-panel" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Booth & Presentation Slot Reservations</h2>
+                            <p class="subtitle">Thread-safe capacity check via <code>ReservationService.reserveSlot()</code></p>
+                        </div>
+                        <div class="status-tag" id="reservationStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Simultaneous Concurrent Reservation Burst</h3>
+                            <button class="btn btn-primary-sm" id="btnBurstReservations">⚡ Trigger 10-Thread Concurrent Burst</button>
+                        </div>
+                        <div class="card-body" id="reservationResultBox">
+                            <div class="loading-state">Loading reservation slots...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. Matching Panel -->
+                <section id="panel-matching" class="tab-panel" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Judge Assignment Optimization</h2>
+                            <p class="subtitle">Maximum bipartite matching via <code>JudgeMatchingService.assignJudges()</code></p>
+                        </div>
+                        <div class="status-tag" id="matchingStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Round 1 Judge-to-Submission Assignments</h3>
+                            <span class="note">Goal: Maximize assigned submissions (Target: 4 matches)</span>
+                        </div>
+                        <div class="card-body" id="matchingResultBox">
+                            <div class="loading-state">Computing matching...</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. Schedule Panel -->
+                <section id="panel-schedule" class="tab-panel" role="tabpanel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Demo Day Auditorium Schedule</h2>
+                            <p class="subtitle">Weighted interval scheduling via <code>DemoScheduleService.scheduleDemos()</code></p>
+                        </div>
+                        <div class="status-tag" id="scheduleStatusTag">Evaluating...</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Selected Demo Slots (Non-Overlapping)</h3>
+                            <span class="note">Goal: Maximize cumulative priority score (Target: 65 pts)</span>
+                        </div>
+                        <div class="card-body" id="scheduleResultBox">
+                            <div class="loading-state">Computing demo schedule...</div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Application Script (relative path preserving prefix) -->
+    <script src="./app.js"></script>
+</body>
+</html>
