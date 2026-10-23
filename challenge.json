@@ -13,5 +13,16 @@
         "type": "preview"
       }
     ]
-  }
+  },
+  "bug_topics": [
+    "Custom Comparator",
+    "Timezone Handling",
+    "HashCode and Equals",
+    "Idempotency",
+    "Access Control",
+    "Concurrency Control",
+    "Maximum Bipartite Matching",
+    "Weighted Interval Scheduling"
+  ]
 }
+
