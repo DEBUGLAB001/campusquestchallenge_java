@@ -15,6 +15,7 @@ ORGANIZER_NOTES.md
 ORGANIZER*.md
 organizer*.md
 switch_branch.sh
+.gitattributes
 undefined/
 .temp/
 *.tmp
