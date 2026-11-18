@@ -12,7 +12,7 @@ Your responsibility is to investigate the existing codebase, reproduce each issu
 
 **Your task:** Ensure tied leaderboard scores follow chronological submission order, placing the earlier submission ahead of the later submission as the tie-breaker.
 
-![BUG-01: Tied Leaderboard Scores Invert Submission Order](docs/images/bug-01.png)
+![BUG-01: Tied Leaderboard Scores Invert Submission Order](https://cdn.debuglab.online/Lab/campusquestjava/uploads/bug-01.png)
 
 ### BUG-02: Event Submissions Near Deadlines Are Wrongfully Rejected
 **Problem:** On-time project submissions made close to an event cutoff are incorrectly rejected by the system.
@@ -21,7 +21,7 @@ Your responsibility is to investigate the existing codebase, reproduce each issu
 
 **Your task:** Ensure submission deadline validation properly converts and evaluates timestamps against the event's configured local timezone.
 
-![BUG-02: Event Submissions Near Deadlines Are Wrongfully Rejected](docs/images/bug-02.png)
+![BUG-02: Event Submissions Near Deadlines Are Wrongfully Rejected](https://cdn.debuglab.online/Lab/campusquestjava/uploads/bug-02.png)
 
 ### BUG-03: Team Directory Search Fails for Valid Team IDs
 **Problem:** Searching for registered hackathon teams by their Team ID fails to retrieve team profiles, returning "Team Not Found" even when the team exists.
@@ -30,7 +30,7 @@ Your responsibility is to investigate the existing codebase, reproduce each issu
 
 **Your task:** Ensure team identifier objects implement proper equality and hash code logic so searching with any equivalent Team ID reliably returns the team's record.
 
-![BUG-03: Team Directory Search Fails for Valid Team IDs](docs/images/bug-03.png)
+![BUG-03: Team Directory Search Fails for Valid Team IDs](https://cdn.debuglab.online/Lab/campusquestjava/uploads/bug-03.png)
 
 ### BUG-04: Duplicate Webhook Retries Inflate Judging Scores
 **Problem:** When an evaluation score webhook callback is delivered multiple times due to network retries, the system adds duplicate score entries, artificially inflating the team's total score.
@@ -39,7 +39,7 @@ Your responsibility is to investigate the existing codebase, reproduce each issu
 
 **Your task:** Make the scoring callback handler idempotent so repeated webhook deliveries for the same evaluation record the score only once.
 
-![BUG-04: Duplicate Webhook Retries Inflate Judging Scores](docs/images/bug-04.png)
+![BUG-04: Duplicate Webhook Retries Inflate Judging Scores](https://cdn.debuglab.online/Lab/campusquestjava/uploads/bug-04.png)
 
 ### BUG-05: Judges Can View Submissions from Other Events
 **Problem:** Judges assigned to evaluate one event can access private project submissions belonging to a completely different competition event.
@@ -48,7 +48,7 @@ Your responsibility is to investigate the existing codebase, reproduce each issu
 
 **Your task:** Restrict judge evaluation access so judges are blocked from viewing submissions that belong to other events.
 
-![BUG-05: Judges Can View Submissions from Other Events](docs/images/bug-05.png)
+![BUG-05: Judges Can View Submissions from Other Events](https://cdn.debuglab.online/Lab/campusquestjava/uploads/bug-05.png)
 
 ### BUG-06: Simultaneous Reservations Exceed Booth Capacity
 **Problem:** When multiple teams attempt to book presentation booths at the exact same moment, booths become overbooked beyond their allowed capacity.
@@ -57,7 +57,7 @@ Your responsibility is to investigate the existing codebase, reproduce each issu
 
 **Your task:** Synchronize booth reservations so simultaneous booking requests strictly respect slot capacity limits and reject bookings once the slot is full.
 
-![BUG-06: Simultaneous Reservations Exceed Booth Capacity](docs/images/bug-06.png)
+![BUG-06: Simultaneous Reservations Exceed Booth Capacity](https://cdn.debuglab.online/Lab/campusquestjava/uploads/bug-06.png)
 
 ---
 
