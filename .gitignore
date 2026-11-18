@@ -11,6 +11,10 @@ target/
 *.gif
 docs/
 solutions.md
+ORGANIZER_NOTES.md
+ORGANIZER*.md
+organizer*.md
+switch_branch.sh
 undefined/
 .temp/
 *.tmp
