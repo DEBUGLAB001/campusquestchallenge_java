@@ -3,7 +3,6 @@ set -e
 
 cd "$(dirname "$0")"
 
-# Maven command resolution
 MVN_CMD="mvn"
 if command -v cmd.exe >/dev/null 2>&1; then
     MVN_CMD="cmd.exe /c mvn"
@@ -33,7 +32,6 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM EXIT
 
-# Fingerprint candidate-edited sources, frontend assets, and pom.xml (excluding target/)
 compute_fingerprint() {
     find src pom.xml -type f 2>/dev/null | sort | xargs stat -c '%n %s %Y' 2>/dev/null | md5sum | cut -d' ' -f1
 }
@@ -45,7 +43,6 @@ build_app() {
 }
 
 start_server() {
-    # Copy to runner.jar to prevent OS file locks on target/app.jar during recompilation
     cp target/app.jar target/runner.jar
     echo "[watcher] Launching server on 0.0.0.0:3000..." >&2
     "$JAVA_CMD" -jar target/runner.jar 1>&2 &

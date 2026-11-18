@@ -15,10 +15,6 @@ public class ReservationService {
         this.dataStore = dataStore;
     }
 
-    /**
-     * Reserve a presentation slot for a team.
-     * Simultaneous concurrent requests must never exceed capacity.
-     */
     public boolean reserveSlot(String slotId, String teamId) {
         ReservationSlot slot = dataStore.getReservationSlots().get(slotId);
         if (slot == null) {

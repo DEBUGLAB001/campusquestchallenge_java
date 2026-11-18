@@ -21,8 +21,6 @@ public class ApiController {
     private final TeamService teamService;
     private final JudgingService judgingService;
     private final ReservationService reservationService;
-    private final JudgeMatchingService judgeMatchingService;
-    private final DemoScheduleService demoScheduleService;
     private final DataStore dataStore;
 
     public ApiController(LeaderboardService leaderboardService,
@@ -30,24 +28,19 @@ public class ApiController {
                          TeamService teamService,
                          JudgingService judgingService,
                          ReservationService reservationService,
-                         JudgeMatchingService judgeMatchingService,
-                         DemoScheduleService demoScheduleService,
                          DataStore dataStore) {
         this.leaderboardService = leaderboardService;
         this.submissionService = submissionService;
         this.teamService = teamService;
         this.judgingService = judgingService;
         this.reservationService = reservationService;
-        this.judgeMatchingService = judgeMatchingService;
-        this.demoScheduleService = demoScheduleService;
         this.dataStore = dataStore;
     }
 
-    // 1. Standings
     @GetMapping("/leaderboard")
     public ResponseEntity<Map<String, Object>> getLeaderboard() {
         List<LeaderboardEntry> entries = leaderboardService.getEventLeaderboard("event-hackathon");
-        // Check if tied entries follow submission time
+        
         boolean tiedOrderedCorrectly = true;
         for (int i = 0; i < entries.size() - 1; i++) {
             LeaderboardEntry a = entries.get(i);
@@ -65,7 +58,6 @@ public class ApiController {
         ));
     }
 
-    // 2. Deadline check
     @GetMapping("/events/deadline-check")
     public ResponseEntity<Map<String, Object>> checkDeadline(
             @RequestParam(defaultValue = "event-hackathon") String eventId,
@@ -88,7 +80,6 @@ public class ApiController {
         ));
     }
 
-    // 3. Team lookup by TeamId
     @GetMapping("/teams/lookup")
     public ResponseEntity<Map<String, Object>> lookupTeam(@RequestParam(defaultValue = "team-cyber") String id) {
         TeamRecord record = teamService.getTeamById(id);
@@ -106,7 +97,6 @@ public class ApiController {
         ));
     }
 
-    // 4. Judging score callback & retry
     @PostMapping("/judging/record-score")
     public ResponseEntity<Map<String, Object>> recordScore(
             @RequestParam(defaultValue = "eval-101") String evalId,
@@ -142,7 +132,6 @@ public class ApiController {
         ));
     }
 
-    // 5. Judge cross-event authorization
     @GetMapping("/submissions/judge-access")
     public ResponseEntity<Map<String, Object>> getSubmissionForJudge(
             @RequestParam(defaultValue = "judge-alpha") String judgeId,
@@ -168,7 +157,6 @@ public class ApiController {
         }
     }
 
-    // 6. Slot Reservation & Burst concurrency
     @GetMapping("/reservations")
     public ResponseEntity<List<ReservationSlot>> getReservationSlots() {
         return ResponseEntity.ok(reservationService.getAllSlots());
@@ -218,37 +206,6 @@ public class ApiController {
         ));
     }
 
-    // 7. Judge Bipartite Matching
-    @GetMapping("/matching")
-    public ResponseEntity<Map<String, Object>> getJudgeMatching() {
-        Map<String, String> assignments = judgeMatchingService.assignAllJudges();
-        int totalPossible = 4; // Submissions 101, 102, 103, 104 with 4 qualified judges
-        boolean isMaximum = assignments.size() == totalPossible;
-
-        return ResponseEntity.ok(Map.of(
-                "assignments", assignments,
-                "matchedCount", assignments.size(),
-                "targetMaximum", totalPossible,
-                "isMaximumMatching", isMaximum
-        ));
-    }
-
-    // 8. Demo Scheduling
-    @GetMapping("/schedule")
-    public ResponseEntity<Map<String, Object>> getDemoSchedule() {
-        List<DemoSlot> scheduled = demoScheduleService.getScheduledDemos();
-        int totalPriority = demoScheduleService.calculateTotalPriority(scheduled);
-        boolean isOptimal = totalPriority == 65;
-
-        return ResponseEntity.ok(Map.of(
-                "scheduledSlots", scheduled,
-                "totalPriority", totalPriority,
-                "optimalTarget", 65,
-                "isOptimal", isOptimal
-        ));
-    }
-
-    // Reset Data Store
     @PostMapping("/admin/reset")
     public ResponseEntity<Map<String, Object>> resetDataStore() {
         dataStore.reset();

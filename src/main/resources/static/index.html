@@ -1,355 +1,664 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CampusQuest — Collegiate Hackathon & Event Platform</title>
-    <meta name="description" content="CampusQuest hackathon management dashboard with live metrics, leaderboard, scheduling, and judge assignments.">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusQuest &mdash; Collegiate Hackathon Operations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('cq-theme');
+        if (saved === 'teal' || saved === 'violet') {
+          document.documentElement.setAttribute('data-theme', saved);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Top Navigation -->
-        <header class="top-nav">
-            <div class="brand">
-                <div class="logo-mark">CQ</div>
-                <div class="brand-text">
-                    <h1>CampusQuest</h1>
-                    <span class="sub-brand">Hackathon & Event Platform</span>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+
+  <div class="bg-canvas-art" aria-hidden="true">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <svg class="bg-vector-art" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      
+      <line class="art-grid-line" x1="260" y1="180" x2="1440" y2="180" />
+      <line class="art-grid-line" x1="260" y1="540" x2="1440" y2="540" />
+      <line class="art-grid-line" x1="680" y1="0" x2="680" y2="900" />
+      <line class="art-grid-line" x1="1120" y1="0" x2="1120" y2="900" />
+
+      <circle class="art-ring" cx="1290" cy="140" r="145" />
+      <circle class="art-ring-dashed" cx="1290" cy="140" r="240" />
+      <circle class="art-ring" cx="1290" cy="140" r="355" />
+      <path class="art-accent-line" d="M 1030 140 A 260 260 0 0 1 1290 -120" />
+      <circle class="art-node" cx="1120" cy="180" r="4" />
+      <circle class="art-node-accent" cx="1290" cy="285" r="4.5" />
+      <circle class="art-node" cx="1050" cy="140" r="3.5" />
+
+      <path class="art-ring" d="M 260 760 L 420 600 L 680 600 L 760 540" />
+      <path class="art-accent-line" d="M 320 880 L 460 740 L 620 740" />
+      <circle class="art-ring-dashed" cx="420" cy="760" r="130" />
+      <circle class="art-node" cx="420" cy="600" r="4" />
+      <circle class="art-node-accent" cx="680" cy="600" r="4.5" />
+      <circle class="art-node" cx="620" cy="740" r="3.5" />
+      <circle class="art-node" cx="680" cy="180" r="3.5" />
+
+      <g class="art-ring">
+        <line x1="1260" y1="740" x2="1280" y2="740" />
+        <line x1="1270" y1="730" x2="1270" y2="750" />
+        <line x1="880" y1="360" x2="896" y2="360" />
+        <line x1="888" y1="352" x2="888" y2="368" />
+      </g>
+    </svg>
+  </div>
+
+  <div class="app-shell">
+    
+    <aside class="sidebar" id="sidebarNav" aria-label="Primary navigation">
+      <div class="sidebar-brand">
+        <div class="brand-crest" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+        </div>
+        <div class="brand-meta">
+          <div class="brand-name">CampusQuest</div>
+          <div class="brand-edition">Campus Hackathon 2026</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Operations modules">
+        <div class="nav-section-title">Competition</div>
+
+        <a class="nav-item active" href="#standings" data-tab="standings" aria-current="page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+            <path d="M4 22h16"></path>
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+          </svg>
+          <span class="nav-label">Standings</span>
+          <span class="nav-dot" id="dot-standings" aria-hidden="true"></span>
+        </a>
+
+        <a class="nav-item" href="#deadlines" data-tab="deadlines">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span class="nav-label">Deadlines</span>
+          <span class="nav-dot" id="dot-deadlines" aria-hidden="true"></span>
+        </a>
+
+        <a class="nav-item" href="#teams" data-tab="teams">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span class="nav-label">Teams</span>
+          <span class="nav-dot" id="dot-teams" aria-hidden="true"></span>
+        </a>
+
+        <div class="nav-section-title" style="margin-top: 8px;">Judging</div>
+
+        <a class="nav-item" href="#judging" data-tab="judging">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 11 3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          <span class="nav-label">Evaluation scores</span>
+          <span class="nav-dot" id="dot-judging" aria-hidden="true"></span>
+        </a>
+
+        <a class="nav-item" href="#access" data-tab="access">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span class="nav-label">Judge access</span>
+          <span class="nav-dot" id="dot-access" aria-hidden="true"></span>
+        </a>
+
+        <div class="nav-section-title" style="margin-top: 8px;">Venue &amp; Stage</div>
+
+        <a class="nav-item" href="#reservations" data-tab="reservations">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span class="nav-label">Booth reservations</span>
+          <span class="nav-dot" id="dot-reservations" aria-hidden="true"></span>
+        </a>
+
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="clock-strip">
+          <span>UTC clock</span>
+          <span class="clock-val" id="sidebarUtcClock">--:--:--</span>
+        </div>
+        <div class="theme-switcher-block">
+          <span class="theme-switcher-label">Color theme</span>
+          <div class="theme-segmented" role="radiogroup" aria-label="Color theme">
+            <button class="theme-option active" type="button" data-theme-choice="teal" role="radio" aria-checked="true">
+              <span class="theme-swatch teal" aria-hidden="true"></span>
+              <span>Teal</span>
+            </button>
+            <button class="theme-option" type="button" data-theme-choice="violet" role="radio" aria-checked="false">
+              <span class="theme-swatch violet" aria-hidden="true"></span>
+              <span>Violet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar" role="banner">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" id="mobileNavToggle" type="button" aria-controls="sidebarNav" aria-expanded="false" aria-label="Open navigation">
+            <svg class="icon-menu" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="18" x2="20" y2="18"></line>
+            </svg>
+            <svg class="icon-close" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+          <div class="topbar-context">
+            <span class="topbar-section-name" id="topbarSectionName">Standings</span>
+            <span class="topbar-event-tag">event-hackathon</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="btnCycleTheme" class="btn btn-ghost" type="button" aria-label="Switch color theme" title="Switch color theme">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="m4.93 4.93 1.41 1.41"></path>
+              <path d="m17.66 17.66 1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="m6.34 17.66-1.41 1.41"></path>
+              <path d="m19.07 4.93-1.41 1.41"></path>
+            </svg>
+            <span id="topbarThemeLabel">Teal</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="main-content" id="mainContent" tabindex="-1">
+        
+        <section id="module-standings" class="module-view active" aria-labelledby="heading-standings">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h2 id="heading-standings">Tournament standings</h2>
+              <p>Live hackathon scores, rank order, and earliest-submission tie-breaking verification.</p>
+            </div>
+            <div class="status-banner" id="standingsAnomalyBanner">
+              <span id="standingsBannerText">Checking leaderboard order...</span>
+            </div>
+          </div>
+
+          <div class="podium-strip" aria-label="Top three teams">
+            <article class="podium-panel first" id="podiumGold">
+              <div class="podium-top">
+                <span class="podium-place">1st place</span>
+                <span class="podium-team-id">&mdash;</span>
+              </div>
+              <div class="podium-team-name">&mdash;</div>
+              <div class="podium-bottom">
+                <div class="podium-score">0.0 <span>pts</span></div>
+                <div class="podium-time">&mdash;</div>
+              </div>
+            </article>
+
+            <article class="podium-panel second" id="podiumSilver">
+              <div class="podium-top">
+                <span class="podium-place">2nd place</span>
+                <span class="podium-team-id">&mdash;</span>
+              </div>
+              <div class="podium-team-name">&mdash;</div>
+              <div class="podium-bottom">
+                <div class="podium-score">0.0 <span>pts</span></div>
+                <div class="podium-time">&mdash;</div>
+              </div>
+            </article>
+
+            <article class="podium-panel third" id="podiumBronze">
+              <div class="podium-top">
+                <span class="podium-place">3rd place</span>
+                <span class="podium-team-id">&mdash;</span>
+              </div>
+              <div class="podium-team-name">&mdash;</div>
+              <div class="podium-bottom">
+                <div class="podium-score">0.0 <span>pts</span></div>
+                <div class="podium-time">&mdash;</div>
+              </div>
+            </article>
+          </div>
+
+          <div class="split-grid">
+            <div class="sheet">
+              <div class="sheet-header">
+                <div>
+                  <h3>Official standings ledger</h3>
+                  <p>Ranked by aggregate score; tied teams should prioritize earlier submission times.</p>
                 </div>
+                <span class="badge navy mono" id="leaderboardCountBadge">0 teams</span>
+              </div>
+              <div class="table-wrap">
+                <table class="ledger-table" aria-label="Tournament standings">
+                  <thead>
+                    <tr>
+                      <th scope="col">Rank</th>
+                      <th scope="col">Team</th>
+                      <th scope="col">Score</th>
+                      <th scope="col">Submitted (UTC)</th>
+                      <th scope="col">Tie-break check</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leaderboardBody">
+                    <tr>
+                      <td colspan="5" style="text-align: center; padding: 28px; color: var(--cq-text-muted);">
+                        Loading standings...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            <div class="nav-metrics">
-                <div class="pill-badge" id="healthPill" title="Server Health & Process ID">
-                    <span class="status-dot green" id="healthDot"></span>
-                    <span class="pill-label">Boot:</span>
-                    <span class="mono" id="bootIdDisplay">Connecting...</span>
+            <aside class="sheet" aria-label="Event operations pulse">
+              <div class="sheet-header">
+                <div>
+                  <h3>Operations pulse</h3>
+                  <p>Live status across platform checks</p>
                 </div>
-                <div class="pill-badge" id="uptimePill">
-                    <span class="pill-label">Started:</span>
-                    <span class="mono" id="startedAtDisplay">--:--:--</span>
+              </div>
+              <div class="pulse-list">
+                <a class="pulse-item" href="#deadlines" data-jump="deadlines">
+                  <div>
+                    <div class="pulse-item-title">Deadline check</div>
+                    <div class="pulse-item-sub" id="pulse-deadlines-sub">America/New_York window</div>
+                  </div>
+                  <span class="badge neutral" id="pulse-deadlines-badge">Checking</span>
+                </a>
+                <a class="pulse-item" href="#teams" data-jump="teams">
+                  <div>
+                    <div class="pulse-item-title">Team directory</div>
+                    <div class="pulse-item-sub" id="pulse-teams-sub">Key lookup: team-cyber</div>
+                  </div>
+                  <span class="badge neutral" id="pulse-teams-badge">Checking</span>
+                </a>
+                <a class="pulse-item" href="#judging" data-jump="judging">
+                  <div>
+                    <div class="pulse-item-title">Evaluation scores</div>
+                    <div class="pulse-item-sub" id="pulse-judging-sub">sub-101 score ledger</div>
+                  </div>
+                  <span class="badge neutral" id="pulse-judging-badge">Ready</span>
+                </a>
+                <a class="pulse-item" href="#access" data-jump="access">
+                  <div>
+                    <div class="pulse-item-title">Judge access</div>
+                    <div class="pulse-item-sub" id="pulse-access-sub">Cross-event isolation</div>
+                  </div>
+                  <span class="badge neutral" id="pulse-access-badge">Checking</span>
+                </a>
+                <a class="pulse-item" href="#matching" data-jump="matching">
+                  <div>
+                    <div class="pulse-item-title">Judge assignments</div>
+                    <div class="pulse-item-sub" id="pulse-matching-sub">Bipartite track matching</div>
+                  </div>
+                  <span class="badge neutral" id="pulse-matching-badge">Checking</span>
+                </a>
+                <a class="pulse-item" href="#schedule" data-jump="schedule">
+                  <div>
+                    <div class="pulse-item-title">Demo schedule</div>
+                    <div class="pulse-item-sub" id="pulse-schedule-sub">Auditorium priority</div>
+                  </div>
+                  <span class="badge neutral" id="pulse-schedule-badge">Checking</span>
+                </a>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="module-deadlines" class="module-view" aria-labelledby="heading-deadlines">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h2 id="heading-deadlines">Submission deadlines</h2>
+              <p>Verify whether a project timestamp falls inside the event's local timezone cutoff.</p>
+            </div>
+            <div class="status-banner" id="deadlineStatusBanner">Evaluating window...</div>
+          </div>
+
+          <div class="metric-band">
+            <div class="metric-cell">
+              <div class="metric-label">Configured event deadline</div>
+              <div class="metric-value mono" id="deadlineConfigVal">2026-10-14 18:00:00</div>
+              <div class="metric-sub" id="deadlineConfigZone">America/New_York</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">Evaluated submission (UTC)</div>
+              <div class="metric-value mono" id="subTimeUtcVal">2026-10-14T21:30:00Z</div>
+              <div class="metric-sub" id="subTimeLocalVal">17:30:00 local event time</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">Your local machine clock</div>
+              <div class="metric-value mono" id="clientClockDisplay">--:--:--</div>
+              <div class="metric-sub" id="clientTimezone">Local timezone</div>
+            </div>
+          </div>
+
+          <div class="sheet">
+            <div class="sheet-header">
+              <div>
+                <h3>Deadline evaluator</h3>
+                <p>Select an event and test any ISO-8601 UTC submission timestamp.</p>
+              </div>
+              <span class="badge neutral mono" id="timelineBadge">Waiting</span>
+            </div>
+            <div class="sheet-body">
+              <div class="control-bar">
+                <div class="field-group">
+                  <label class="field-label" for="deadlineEventSelect">Event</label>
+                  <select id="deadlineEventSelect" class="select-control">
+                    <option value="event-hackathon">Campus Hackathon 2026 (America/New_York)</option>
+                    <option value="event-designquest">Design Quest 2026 (Asia/Kolkata)</option>
+                  </select>
                 </div>
-                <button class="btn btn-outline-sm" id="btnResetStore" title="Reset in-memory data store">
-                    🔄 Reset Data
+                <div class="field-group">
+                  <label class="field-label" for="deadlineTimestampInput">Submission timestamp (UTC)</label>
+                  <input id="deadlineTimestampInput" type="text" class="input-control mono" value="2026-10-14T21:30:00Z" placeholder="YYYY-MM-DDTHH:MM:SSZ">
+                </div>
+                <button id="btnRecheckDeadline" class="btn btn-primary" type="button">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>Check deadline</span>
                 </button>
-            </div>
-        </header>
+              </div>
 
-        <!-- Live Status Banner / Toast (Flashes temporarily on changes) -->
-        <div id="reloadNotification" class="toast-banner hidden">
-            <div class="toast-content">
-                <span class="spinner" id="toastSpinner"></span>
-                <span id="toastMessage">Applying your changes...</span>
-            </div>
-        </div>
+              <div class="preset-row">
+                <span>Test timestamps:</span>
+                <button class="btn btn-ghost btn-sm deadline-preset" type="button" data-event="event-hackathon" data-ts="2026-10-14T21:30:00Z">17:30 EDT (30m before cutoff)</button>
+                <button class="btn btn-ghost btn-sm deadline-preset" type="button" data-event="event-hackathon" data-ts="2026-10-14T17:45:00Z">13:45 EDT (early)</button>
+                <button class="btn btn-ghost btn-sm deadline-preset" type="button" data-event="event-hackathon" data-ts="2026-10-14T22:15:00Z">18:15 EDT (late)</button>
+              </div>
 
-        <!-- Main Layout with Sidebar and Content -->
-        <div class="dashboard-container">
-            <!-- Sidebar Navigation Tabs -->
-            <nav class="sidebar" aria-label="Feature modules">
-                <div class="sidebar-heading">EVENT MODULES</div>
-                <ul class="nav-list" role="tablist">
-                    <li>
-                        <button class="nav-item active" data-tab="leaderboard" id="tab-leaderboard" role="tab">
-                            <span class="icon">🏆</span>
-                            <span class="title">Standings</span>
-                            <span class="badge" id="badge-leaderboard">Live</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-item" data-tab="deadlines" id="tab-deadlines" role="tab">
-                            <span class="icon">⏰</span>
-                            <span class="title">Submission Check</span>
-                            <span class="badge" id="badge-deadlines">Portal</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-item" data-tab="teams" id="tab-teams" role="tab">
-                            <span class="icon">👥</span>
-                            <span class="title">Team Directory</span>
-                            <span class="badge" id="badge-teams">Roster</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-item" data-tab="judging" id="tab-judging" role="tab">
-                            <span class="icon">⚖️</span>
-                            <span class="title">Evaluation Scores</span>
-                            <span class="badge" id="badge-judging">Judging</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-item" data-tab="access" id="tab-access" role="tab">
-                            <span class="icon">🔒</span>
-                            <span class="title">Review Access</span>
-                            <span class="badge" id="badge-access">Security</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-item" data-tab="reservations" id="tab-reservations" role="tab">
-                            <span class="icon">🎪</span>
-                            <span class="title">Venue Booths</span>
-                            <span class="badge" id="badge-reservations">Slots</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-item" data-tab="matching" id="tab-matching" role="tab">
-                            <span class="icon">🎯</span>
-                            <span class="title">Judge Allocation</span>
-                            <span class="badge" id="badge-matching">Rounds</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-item" data-tab="schedule" id="tab-schedule" role="tab">
-                            <span class="icon">📅</span>
-                            <span class="title">Demo Day Schedule</span>
-                            <span class="badge" id="badge-schedule">Main Hall</span>
-                        </button>
-                    </li>
-                </ul>
-                <div class="sidebar-footer">
-                    <div class="poll-indicator">
-                        <span class="pulse-dot"></span>
-                        <span class="poll-text">Live Polling: 1.5s (no-store)</span>
-                    </div>
+              <div class="timeline-meter">
+                <div class="timeline-track">
+                  <div class="timeline-fill" id="timelineScrubber" style="width: 75%;"></div>
                 </div>
-            </nav>
-
-            <!-- Main Content Panels -->
-            <main class="content-panel" id="mainContent">
-                <!-- Friendly Error Card (shown if network/API drops) -->
-                <div id="errorCard" class="card error-card hidden">
-                    <div class="card-header error-header">
-                        <h3>⚠️ Service Notice</h3>
-                        <button class="btn btn-sm" id="btnDismissError">Dismiss</button>
-                    </div>
-                    <div class="card-body">
-                        <p id="errorMessage">Unable to fetch live telemetry. Reconnecting...</p>
-                    </div>
+                <div class="timeline-scale-labels">
+                  <span>Submission window open</span>
+                  <span id="timelineCutoffLabel">Local cutoff: 18:00</span>
                 </div>
+              </div>
 
-                <!-- 1. Leaderboard Panel -->
-                <section id="panel-leaderboard" class="tab-panel active" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Event Standings</h2>
-                            <p class="subtitle">Real-time ranking computed by <code>LeaderboardService.getRankings()</code></p>
-                        </div>
-                        <div id="flashNotice-leaderboard"></div>
-                    </div>
+              <div class="diagnostic-box" id="deadlineExplanation">
+                Running deadline check against live backend service...
+              </div>
+            </div>
+          </div>
+        </section>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Hackathon Official Leaderboard</h3>
-                            <span class="note">Rule: Tied scores follow earlier submission time</span>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="data-table" id="leaderboardTable">
-                                <thead>
-                                    <tr>
-                                        <th>Rank</th>
-                                        <th>Team</th>
-                                        <th>Total Score</th>
-                                        <th>Submission Time</th>
-                                        <th>Evaluation</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="leaderboardTbody">
-                                    <tr><td colspan="5" class="loading-td">Loading standings...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-footer" id="leaderboardFooterNote"></div>
-                    </div>
-                </section>
+        <section id="module-teams" class="module-view" aria-labelledby="heading-teams">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h2 id="heading-teams">Team directory</h2>
+              <p>Query registered hackathon teams by their strongly typed TeamId key.</p>
+            </div>
+            <div class="status-banner" id="teamsStatusBanner">Ready to query</div>
+          </div>
 
-                <!-- 2. Deadlines Panel -->
-                <section id="panel-deadlines" class="tab-panel" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Submission Verification</h2>
-                            <p class="subtitle">Regional deadline check via <code>SubmissionService.isSubmissionAllowed()</code></p>
-                        </div>
-                        <div id="flashNotice-deadlines"></div>
-                    </div>
+          <div class="sheet" style="margin-bottom: 20px;">
+            <div class="sheet-body">
+              <div class="search-row">
+                <input type="text" id="teamSearchInput" class="input-control mono" value="team-cyber" placeholder="Enter team ID (e.g. team-cyber)" aria-label="Team ID">
+                <button id="btnQueryTeam" class="btn btn-primary" type="button">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <span>Find team</span>
+                </button>
+              </div>
+              <div class="preset-row">
+                <span>Registered keys:</span>
+                <button class="btn btn-ghost btn-sm mono seed-btn" type="button" data-seed="team-cyber">team-cyber</button>
+                <button class="btn btn-ghost btn-sm mono seed-btn" type="button" data-seed="team-algo">team-algo</button>
+                <button class="btn btn-ghost btn-sm mono seed-btn" type="button" data-seed="team-nexus">team-nexus</button>
+                <button class="btn btn-ghost btn-sm mono seed-btn" type="button" data-seed="team-byte">team-byte</button>
+              </div>
+            </div>
+          </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Campus Hackathon 2026 — Deadline Validation</h3>
-                        </div>
-                        <div class="card-body grid-2">
-                            <div class="info-group">
-                                <span class="label">Event ID</span>
-                                <span class="value" id="dlEventId">event-hackathon</span>
-                            </div>
-                            <div class="info-group">
-                                <span class="label">Configured Deadline</span>
-                                <span class="value mono" id="dlConfigDeadline">2026-10-14T18:00:00 (18:00 Local)</span>
-                            </div>
-                            <div class="info-group">
-                                <span class="label">Configured Event Zone</span>
-                                <span class="value badge-zone" id="dlEventZone">America/New_York (UTC-4)</span>
-                            </div>
-                            <div class="info-group">
-                                <span class="label">Submission Timestamp</span>
-                                <span class="value mono" id="dlSubmissionTime">2026-10-14T21:30:00Z (= 17:30 Local)</span>
-                            </div>
-                        </div>
-                        <div class="validation-box" id="dlValidationBox">
-                            <div class="validation-result" id="dlValidationResult">Evaluating...</div>
-                            <p class="validation-desc" id="dlValidationDesc"></p>
-                        </div>
-                    </div>
-                </section>
+          <div class="sheet" id="teamResultCard">
+            <div class="sheet-body" style="color: var(--cq-text-muted);">
+              Select a team key above to inspect its registry record.
+            </div>
+          </div>
+        </section>
 
-                <!-- 3. Teams Panel -->
-                <section id="panel-teams" class="tab-panel" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Team Directory</h2>
-                            <p class="subtitle">Identity lookup via <code>TeamService.getTeam(TeamId)</code></p>
-                        </div>
-                        <div id="flashNotice-teams"></div>
-                    </div>
+        <section id="module-judging" class="module-view" aria-labelledby="heading-judging">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h2 id="heading-judging">Evaluation scores</h2>
+              <p>Deliver judge scoring callbacks and verify that repeated evaluation IDs are deduplicated.</p>
+            </div>
+            <div class="status-banner" id="webhookStatusBanner">Endpoint ready</div>
+          </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Query Registered Team</h3>
-                            <div class="lookup-bar">
-                                <input type="text" id="inputTeamLookup" value="team-cyber" class="input-sm" placeholder="Enter Team ID">
-                                <button class="btn btn-primary-sm" id="btnLookupTeam">Query Team</button>
-                            </div>
-                        </div>
-                        <div class="card-body" id="teamLookupResult">
-                            <div class="loading-state">Querying registry...</div>
-                        </div>
-                    </div>
-                </section>
+          <div class="metric-band">
+            <div class="metric-cell">
+              <div class="metric-label">Submission target</div>
+              <div class="metric-value mono" id="webhookTargetLabel">sub-101</div>
+              <div class="metric-sub">SmartCampus IoT (CyberKnights)</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">Total recorded score</div>
+              <div class="metric-value mono" id="webhookScore" style="color: var(--cq-primary);">0.0 pts</div>
+              <div class="metric-sub">Expected single-ingestion total: 25.0 pts</div>
+            </div>
+            <div class="metric-cell">
+              <div class="metric-label">Recorded evaluations</div>
+              <div class="metric-value mono" id="webhookCount">0</div>
+              <div class="metric-sub" id="webhookIdempotencyDesc">No callbacks delivered yet</div>
+            </div>
+          </div>
 
-                <!-- 4. Judging Panel -->
-                <section id="panel-judging" class="tab-panel" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Judging & Evaluation Scoring</h2>
-                            <p class="subtitle">Scoring service via <code>JudgingService.recordScore()</code></p>
-                        </div>
-                        <div id="flashNotice-judging"></div>
-                    </div>
+          <div class="split-grid equal">
+            <div class="sheet">
+              <div class="sheet-header">
+                <div>
+                  <h3>Callback dispatcher</h3>
+                  <p>Send the same evaluation ID twice to test idempotent score recording.</p>
+                </div>
+              </div>
+              <div class="sheet-body">
+                <div class="form-grid-2">
+                  <div class="field-group">
+                    <label class="field-label" for="inputEvalId">Evaluation ID</label>
+                    <input id="inputEvalId" type="text" class="input-control mono" value="eval-101">
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label" for="inputSubId">Submission ID</label>
+                    <input id="inputSubId" type="text" class="input-control mono" value="sub-101">
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label" for="inputJudgeId">Judge ID</label>
+                    <input id="inputJudgeId" type="text" class="input-control mono" value="judge-alpha">
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label" for="inputScoreVal">Score points</label>
+                    <input id="inputScoreVal" type="number" step="0.5" class="input-control mono" value="25.0">
+                  </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                  <button id="btnDispatchWebhook" class="btn btn-primary" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    <span>Send score callback</span>
+                  </button>
+                  <button id="btnRefreshJudgingStatus" class="btn btn-secondary" type="button">Check current status</button>
+                </div>
+              </div>
+            </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Automated Webhook Scoring</h3>
-                            <button class="btn btn-primary-sm" id="btnSimulateRetry">Test Scoring Webhook</button>
-                        </div>
-                        <div class="card-body grid-3">
-                            <div class="metric-card">
-                                <span class="metric-label">Evaluation Reference</span>
-                                <span class="metric-val mono">eval-101</span>
-                            </div>
-                            <div class="metric-card">
-                                <span class="metric-label">Calculated Score (sub-101)</span>
-                                <span class="metric-val mono" id="judgingTotalScore">--</span>
-                            </div>
-                            <div class="metric-card">
-                                <span class="metric-label">Evaluations Recorded</span>
-                                <span class="metric-val mono" id="judgingCount">--</span>
-                            </div>
-                        </div>
-                        <div class="card-footer" id="judgingFooterNote"></div>
-                    </div>
-                </section>
+            <div class="sheet">
+              <div class="sheet-header">
+                <div>
+                  <h3>Delivery log</h3>
+                  <p>Live responses from <code>POST /api/judging/record-score</code></p>
+                </div>
+              </div>
+              <div class="sheet-body">
+                <div id="webhookSimulationLog" class="event-log" aria-live="polite">
+                  <div class="log-entry">Waiting for callback dispatch (evalId=eval-101, subId=sub-101, score=25.0).</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-                <!-- 5. Access Panel -->
-                <section id="panel-access" class="tab-panel" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Review Access Control</h2>
-                            <p class="subtitle">Event isolation via <code>SubmissionService.getSubmissionForJudge()</code></p>
-                        </div>
-                        <div id="flashNotice-access"></div>
-                    </div>
+        <section id="module-access" class="module-view" aria-labelledby="heading-access">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h2 id="heading-access">Judge access</h2>
+              <p>Verify that judges can inspect submissions only within their assigned competition event.</p>
+            </div>
+            <div class="status-banner" id="accessSignalBanner">Checking boundary...</div>
+          </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Cross-Event Access Verification</h3>
-                            <span class="note">Judge J1 (Hackathon) reviews Submission S201 (Design Quest)</span>
-                        </div>
-                        <div class="card-body" id="accessResultBox">
-                            <div class="loading-state">Verifying access policy...</div>
-                        </div>
-                    </div>
-                </section>
+          <div class="sheet" style="margin-bottom: 20px;">
+            <div class="sheet-header">
+              <div>
+                <h3>Access boundary check</h3>
+                <p>Select any seeded judge and submission pair from the data store.</p>
+              </div>
+            </div>
+            <div class="sheet-body">
+              <div class="control-bar" style="grid-template-columns: repeat(2, minmax(0, 1fr)) auto;">
+                <div class="field-group">
+                  <label class="field-label" for="selJudge">Judge</label>
+                  <select id="selJudge" class="select-control">
+                    <option value="judge-alpha">judge-alpha — Dr. Alan Turing (event-hackathon)</option>
+                    <option value="judge-beta">judge-beta — Prof. Grace Hopper (event-hackathon)</option>
+                    <option value="judge-external">judge-external — Dr. Linus Torvalds (event-designquest)</option>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="selSub">Submission</label>
+                  <select id="selSub" class="select-control">
+                    <option value="sub-201">sub-201 — SolarGrid UI (event-designquest)</option>
+                    <option value="sub-101">sub-101 — SmartCampus IoT (event-hackathon)</option>
+                    <option value="sub-102">sub-102 — NeuralFlow Engine (event-hackathon)</option>
+                  </select>
+                </div>
+                <button id="btnCheckAccess" class="btn btn-primary" type="button">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                  <span>Check access</span>
+                </button>
+              </div>
+              <div id="accessCheckResult" class="diagnostic-box">
+                Running cross-event authorization check...
+              </div>
+            </div>
+          </div>
 
-                <!-- 6. Reservations Panel -->
-                <section id="panel-reservations" class="tab-panel" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Venue Booth Reservations</h2>
-                            <p class="subtitle">Capacity enforcement via <code>ReservationService.reserveSlot()</code></p>
-                        </div>
-                        <div id="flashNotice-reservations"></div>
-                    </div>
+          <div class="sheet">
+            <div class="sheet-header">
+              <div>
+                <h3>Expected authorization matrix</h3>
+                <p>Click any pair to run a live request against <code>GET /api/submissions/judge-access</code>.</p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="ledger-table" aria-label="Expected judge access matrix">
+                <thead>
+                  <tr>
+                    <th scope="col">Judge</th>
+                    <th scope="col">Assigned event</th>
+                    <th scope="col">Target submission</th>
+                    <th scope="col">Expected policy</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-label="Judge" class="cell-mono"><strong>judge-alpha</strong></td>
+                    <td data-label="Assigned event"><span class="badge navy mono">event-hackathon</span></td>
+                    <td data-label="Target submission" class="cell-mono">sub-101 (event-hackathon)</td>
+                    <td data-label="Expected policy"><span class="badge success">200 Authorized</span></td>
+                    <td data-label="Action"><button class="btn btn-ghost btn-sm access-quick-test" type="button" data-judge="judge-alpha" data-sub="sub-101">Test pair</button></td>
+                  </tr>
+                  <tr class="row-anomaly">
+                    <td data-label="Judge" class="cell-mono"><strong>judge-alpha</strong></td>
+                    <td data-label="Assigned event"><span class="badge navy mono">event-hackathon</span></td>
+                    <td data-label="Target submission" class="cell-mono">sub-201 (event-designquest)</td>
+                    <td data-label="Expected policy"><span class="badge danger">403 Forbidden (Cross-event)</span></td>
+                    <td data-label="Action"><button class="btn btn-ghost btn-sm access-quick-test" type="button" data-judge="judge-alpha" data-sub="sub-201">Test pair</button></td>
+                  </tr>
+                  <tr>
+                    <td data-label="Judge" class="cell-mono"><strong>judge-external</strong></td>
+                    <td data-label="Assigned event"><span class="badge neutral mono">event-designquest</span></td>
+                    <td data-label="Target submission" class="cell-mono">sub-101 (event-hackathon)</td>
+                    <td data-label="Expected policy"><span class="badge danger">403 Forbidden (Cross-event)</span></td>
+                    <td data-label="Action"><button class="btn btn-ghost btn-sm access-quick-test" type="button" data-judge="judge-external" data-sub="sub-101">Test pair</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Innovation Lab A — Booth Reservations</h3>
-                            <button class="btn btn-primary-sm" id="btnBurstReservations">⚡ Test Concurrent Booking</button>
-                        </div>
-                        <div class="card-body" id="reservationResultBox">
-                            <div class="loading-state">Loading reservation slots...</div>
-                        </div>
-                    </div>
-                </section>
+        <section id="module-reservations" class="module-view" aria-labelledby="heading-reservations">
+          <div class="module-header">
+            <div class="module-title-block">
+              <h2 id="heading-reservations">Booth reservations</h2>
+              <p>Monitor presentation booth capacities and stress-test concurrent team bookings.</p>
+            </div>
+            <div class="status-banner" id="boothStatusBanner">Checking slots...</div>
+          </div>
 
-                <!-- 7. Matching Panel -->
-                <section id="panel-matching" class="tab-panel" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Judge Allocation</h2>
-                            <p class="subtitle">Round assignment via <code>JudgeMatchingService.assignJudges()</code></p>
-                        </div>
-                        <div id="flashNotice-matching"></div>
-                    </div>
+          <div class="booth-grid" id="boothSlotsGrid">
+            <div class="sheet">
+              <div class="sheet-body" style="color: var(--cq-text-muted);">
+                Loading venue booths...
+              </div>
+            </div>
+          </div>
+        </section>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Round 1 Judge-to-Submission Assignments</h3>
-                            <span class="note">Allocates judges based on category qualifications</span>
-                        </div>
-                        <div class="card-body" id="matchingResultBox">
-                            <div class="loading-state">Computing allocations...</div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 8. Schedule Panel -->
-                <section id="panel-schedule" class="tab-panel" role="tabpanel">
-                    <div class="panel-header">
-                        <div>
-                            <h2>Demo Day Auditorium Schedule</h2>
-                            <p class="subtitle">Presentation slots via <code>DemoScheduleService.scheduleDemos()</code></p>
-                        </div>
-                        <div id="flashNotice-schedule"></div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Selected Demo Slots (Non-Overlapping)</h3>
-                            <span class="note">Optimized for maximum schedule impact</span>
-                        </div>
-                        <div class="card-body" id="scheduleResultBox">
-                            <div class="loading-state">Computing demo schedule...</div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </div>
+      </main>
     </div>
+  </div>
 
-    <!-- Application Script (relative path preserving prefix) -->
-    <script src="./app.js"></script>
+  <button class="nav-backdrop" id="navBackdrop" type="button" aria-label="Close navigation" hidden></button>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="app.js"></script>
 </body>
 </html>

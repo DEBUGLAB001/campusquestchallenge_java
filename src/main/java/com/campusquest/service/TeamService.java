@@ -16,10 +16,6 @@ public class TeamService {
         this.dataStore = dataStore;
     }
 
-    /**
-     * Lookup team by TeamId key.
-     * Relies on TeamId implementing value equality and consistent hashCode.
-     */
     public TeamRecord getTeam(TeamId teamId) {
         return dataStore.getTeams().get(teamId);
     }

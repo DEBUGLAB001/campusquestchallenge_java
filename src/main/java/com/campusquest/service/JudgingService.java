@@ -15,10 +15,6 @@ public class JudgingService {
         this.dataStore = dataStore;
     }
 
-    /**
-     * Record a judging score callback.
-     * Retries with identical evaluationId must be idempotent.
-     */
     public void recordScore(ScoreRecord record) {
         dataStore.getScoresList().add(record);
     }

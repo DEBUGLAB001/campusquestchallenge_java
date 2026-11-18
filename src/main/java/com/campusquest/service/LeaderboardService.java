@@ -17,10 +17,6 @@ public class LeaderboardService {
         this.dataStore = dataStore;
     }
 
-    /**
-     * Compute leaderboard rankings for an event.
-     * Tied scores must follow submission time (earlier submission ranks higher).
-     */
     public List<LeaderboardEntry> getRankings(List<LeaderboardEntry> initialEntries) {
         List<LeaderboardEntry> entries = new ArrayList<>(initialEntries);
 
@@ -40,7 +36,7 @@ public class LeaderboardService {
     }
 
     public List<LeaderboardEntry> getEventLeaderboard(String eventId) {
-        // Seeded demo entries for event leaderboard
+
         List<LeaderboardEntry> entries = new ArrayList<>();
         entries.add(new LeaderboardEntry(0, "team-cyber", "CyberKnights", 95.0, Instant.parse("2026-10-14T10:00:00Z")));
         entries.add(new LeaderboardEntry(0, "team-algo", "AlgoTitans", 95.0, Instant.parse("2026-10-14T10:30:00Z")));

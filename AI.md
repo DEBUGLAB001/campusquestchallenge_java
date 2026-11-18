@@ -2,7 +2,7 @@
 
 ## Description
 
-CampusQuest is a hackathon event operations platform built with Java 17 and Spring Boot that manages team registrations, project submissions, judging workflows, booth reservations, and presentation scheduling.
+CampusQuest is a hackathon event operations platform built with Java 17 and Spring Boot that manages team registrations, project submissions, judging workflows, and booth reservations.
 
 ## Repository Structure
 
@@ -18,7 +18,7 @@ campusquestchallenge_java/
 │       ├── java/com/campusquest/
 │       │   ├── CampusQuestApplication.java
 │       │   │                         Spring Boot main entry point
-│       │   ├── TestRunner.java       CLI JSON test suite harness evaluating all 8 defects
+│       │   ├── TestRunner.java       CLI JSON test suite harness evaluating all 6 defects
 │       │   ├── controller/
 │       │   │   ├── ApiController.java
 │       │   │   │                     REST API endpoints for standings, submissions, teams, and operations
@@ -27,7 +27,6 @@ campusquestchallenge_java/
 │       │   │   └── PreviewController.java
 │       │   │                         Subpath asset streaming supporting prefix routes
 │       │   ├── model/
-│       │   │   ├── DemoSlot.java      Demo presentation time window and priority model
 │       │   │   ├── Event.java         Event metadata, local timezone, and deadline model
 │       │   │   ├── Judge.java         Judge profile and category qualifications model
 │       │   │   ├── LeaderboardEntry.java
@@ -40,10 +39,6 @@ campusquestchallenge_java/
 │       │   │   └── TeamRecord.java    Registered team profile and members model
 │       │   └── service/
 │       │       ├── DataStore.java     Thread-safe in-memory data storage and demo seeding
-│       │       ├── DemoScheduleService.java
-│       │       │                     Demo Day presentation interval scheduling service
-│       │       ├── JudgeMatchingService.java
-│       │       │                     Judge-to-submission category matching service
 │       │       ├── JudgingService.java
 │       │       │                     Evaluation scoring and callback idempotency service
 │       │       ├── LeaderboardService.java
@@ -110,20 +105,6 @@ campusquestchallenge_java/
 - **Failure:** Unsynchronized check-then-act logic allows concurrent threads to pass the capacity check simultaneously, overbooking the slot.
 - **Expected:** Synchronize the capacity check and slot reservation update to prevent oversubscription.
 
-### 7. Greedy judge assignment leaves submissions unmatched
-
-- **Bug location:** `src/main/java/com/campusquest/service/JudgeMatchingService.java`
-- **How to observe it:** Run judge assignment across qualified judges and category submissions with overlapping qualifications.
-- **Failure:** A greedy assignment loop pairs early judges without backtracking, stranding valid pairs and failing to achieve maximum matching.
-- **Expected:** Use maximum bipartite matching with augmenting paths to maximize total assigned judge-submission pairs.
-
-### 8. Demo Day scheduler fails to maximize priority
-
-- **Bug location:** `src/main/java/com/campusquest/service/DemoScheduleService.java`
-- **How to observe it:** Schedule overlapping presentation slots with varying individual priority values.
-- **Failure:** Greedy selection by highest individual priority selects a suboptimal slot that blocks compatible slots with higher combined priority.
-- **Expected:** Use weighted interval scheduling dynamic programming to select the non-overlapping combination that maximizes total priority.
-
 ## Expected Behaviour After Fixing All Bugs
 
 - Tied leaderboard scores break ties by ranking earlier submissions first.
@@ -132,6 +113,4 @@ campusquestchallenge_java/
 - Judging score callbacks are idempotent and prevent duplicate score inflation on retries.
 - Tenant isolation prevents judges from viewing submissions outside their assigned event.
 - Concurrent booth reservations are thread-safe and never exceed designated slot capacity.
-- Judge assignment finds the global maximum bipartite matching between judges and submissions.
-- Demo Day scheduling chooses the optimal non-overlapping interval combination with maximum total priority.
-- All 8 automated tests in `tests/run_tests.sh` pass with exit code 0.
+- All 6 automated tests in `tests/run_tests.sh` pass with exit code 0.

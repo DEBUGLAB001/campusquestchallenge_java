@@ -5,3 +5,12 @@ target/
 *.iml
 .vscode/
 .DS_Store
+*.png
+*.jpg
+*.jpeg
+*.gif
+docs/
+solutions.md
+undefined/
+.temp/
+*.tmp

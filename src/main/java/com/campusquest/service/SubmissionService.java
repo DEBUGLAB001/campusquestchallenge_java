@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 @Service
@@ -18,9 +19,6 @@ public class SubmissionService {
         this.dataStore = dataStore;
     }
 
-    /**
-     * Check if a submission is on time according to the event's deadline and configured timezone.
-     */
     public boolean isSubmissionAllowed(Event event, Instant submissionTime) {
         if (event == null || submissionTime == null) {
             return false;
@@ -33,10 +31,6 @@ public class SubmissionService {
         return !submissionTime.isAfter(deadlineInstant);
     }
 
-    /**
-     * Retrieve a submission on behalf of a judge.
-     * Judges must not be able to read submissions belonging to a different event.
-     */
     public Submission getSubmissionForJudge(String judgeId, String submissionId) {
         Judge judge = dataStore.getJudges().get(judgeId);
         Submission submission = dataStore.getSubmissions().get(submissionId);

@@ -13,7 +13,6 @@ if [ -z "$TARGET_STATE" ]; then
     exit 0
 fi
 
-# Safety check: refuse if uncommitted changes exist
 if [ -n "$(git status --porcelain)" ]; then
     echo "ERROR: Working tree has uncommitted modifications." >&2
     echo "Refusing to switch branches to prevent loss of candidate work." >&2

@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,8 +21,6 @@ public class CampusQuestTest {
     private TeamService teamService;
     private JudgingService judgingService;
     private ReservationService reservationService;
-    private JudgeMatchingService judgeMatchingService;
-    private DemoScheduleService demoScheduleService;
 
     @BeforeEach
     public void setUp() {
@@ -33,8 +30,6 @@ public class CampusQuestTest {
         teamService = new TeamService(dataStore);
         judgingService = new JudgingService(dataStore);
         reservationService = new ReservationService(dataStore);
-        judgeMatchingService = new JudgeMatchingService(dataStore);
-        demoScheduleService = new DemoScheduleService(dataStore);
     }
 
     @Test
@@ -103,26 +98,5 @@ public class CampusQuestTest {
 
         assertTrue(reservationService.getSlot(slotId).getReservedTeams().size() <= 5,
                 "Concurrent reservations must not exceed capacity 5");
-    }
-
-    @Test
-    public void test_judge_assignment_finds_maximum_matching() {
-        Judge j1 = new Judge("j1", "J1", "e1", List.of("s2", "s1"));
-        Judge j2 = new Judge("j2", "J2", "e1", List.of("s2"));
-        Judge j3 = new Judge("j3", "J3", "e1", List.of("s4", "s3"));
-        Judge j4 = new Judge("j4", "J4", "e1", List.of("s4"));
-        Map<String, String> matching = judgeMatchingService.assignJudges(List.of(j1, j2, j3, j4));
-        assertEquals(4, matching.size(), "Should find maximum bipartite matching of size 4");
-    }
-
-    @Test
-    public void test_demo_schedule_maximizes_total_priority() {
-        List<DemoSlot> requests = List.of(
-                new DemoSlot("d1", "Team 1", 540, 780, 50),
-                new DemoSlot("d2", "Team 2", 540, 660, 30),
-                new DemoSlot("d3", "Team 3", 660, 780, 35)
-        );
-        List<DemoSlot> scheduled = demoScheduleService.scheduleDemos(requests);
-        assertEquals(65, demoScheduleService.calculateTotalPriority(scheduled), "Optimal schedule priority should be 65");
     }
 }

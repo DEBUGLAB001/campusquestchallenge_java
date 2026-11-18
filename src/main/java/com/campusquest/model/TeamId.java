@@ -2,9 +2,6 @@ package com.campusquest.model;
 
 import java.util.Objects;
 
-/**
- * TeamId value object representing unique team identity.
- */
 public class TeamId {
     private final String value;
 
@@ -18,8 +15,10 @@ public class TeamId {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         TeamId teamId = (TeamId) o;
         return Objects.equals(value, teamId.value);
     }

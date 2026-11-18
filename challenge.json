@@ -20,8 +20,6 @@
     "HashCode and Equals",
     "Idempotency",
     "Access Control",
-    "Concurrency Control",
-    "Maximum Bipartite Matching",
-    "Weighted Interval Scheduling"
+    "Concurrency Control"
   ]
 }

@@ -3,8 +3,8 @@ package com.campusquest.model;
 public class Event {
     private final String eventId;
     private final String title;
-    private final String deadline; // e.g. "2026-10-14T18:00:00"
-    private final String timeZone; // e.g. "America/New_York"
+    private final String deadline; 
+    private final String timeZone; 
 
     public Event(String eventId, String title, String deadline, String timeZone) {
         this.eventId = eventId;
