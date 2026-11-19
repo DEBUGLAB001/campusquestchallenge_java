@@ -134,15 +134,5 @@ After all fixes are in place, the application must behave as follows:
 
 ---
 
-## 4. Verification & Testing
-You can verify the state of your application at any time using the automated test suite:
 
-```bash
-bash tests/run_tests.sh
-```
-
-To run the application with live reload during development:
-
-```bash
-bash start.sh
 ```
