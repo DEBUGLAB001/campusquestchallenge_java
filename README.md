@@ -133,6 +133,3 @@ After all fixes are in place, the application must behave as follows:
 - **Booth Capacity Enforcement:** Presentation booths never exceed their maximum allowed capacity, even under simultaneous booking attempts.
 
 ---
-
-
-```
