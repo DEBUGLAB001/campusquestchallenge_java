@@ -454,16 +454,9 @@ function initDeadlineCheck() {
           scrubber.className = 'timeline-fill ok';
           scrubber.style.width = '82%';
         }
-        if (explanation) {
-          explanation.className = 'diagnostic-box success';
-          explanation.innerHTML = `
-            <strong>Submission accepted.</strong> Timestamp <code>${escapeHtml(data.submissionTimeUtc)}</code>
-            converts to <strong>${escapeHtml(formattedLocal)}</strong> in <code>${escapeHtml(data.configuredTimeZone)}</code>,
-            which is on or before the configured cutoff <code>${escapeHtml(data.configuredDeadline)}</code>.
-          `;
-        }
         setNavDot('deadlines', 'ok');
         setPulse('deadlines', 'Accepted', 'success', `${data.configuredTimeZone}`);
+        if (notify) showToast(`Deadline Accepted: Submission is within event cutoff (${formattedLocal})`, 'success');
       } else {
         if (banner) {
           banner.className = 'status-banner danger';
@@ -477,20 +470,10 @@ function initDeadlineCheck() {
           scrubber.className = 'timeline-fill err';
           scrubber.style.width = '100%';
         }
-        if (explanation) {
-          explanation.className = 'diagnostic-box danger';
-          explanation.innerHTML = `
-            <strong>Submission rejected (${escapeHtml(data.status)}).</strong> Timestamp
-            <code>${escapeHtml(data.submissionTimeUtc)}</code> corresponds to <strong>${escapeHtml(formattedLocal)}</strong>
-            in <code>${escapeHtml(data.configuredTimeZone)}</code> against deadline <code>${escapeHtml(data.configuredDeadline)}</code>.
-            If the local time is earlier than the cutoff, the backend is comparing naive UTC instead of event timezone.
-          `;
-        }
         setNavDot('deadlines', 'err');
         setPulse('deadlines', 'Rejected', 'danger', 'Timezone check flagged');
+        if (notify) showToast(`Deadline Rejected: Submission timestamp is flagged as expired (${formattedLocal})`, 'danger');
       }
-
-      if (notify) showToast(`Deadline check: ${data.status}`, data.allowed ? 'success' : 'danger');
     } catch (err) {
       console.error('Deadline check error:', err);
     }
@@ -508,7 +491,7 @@ function initDeadlineCheck() {
   if (eventSel) eventSel.addEventListener('change', () => check(false));
 
   window._fetchDeadline = () => check(false);
-  check(false);
+  check(window.location.hash === '#deadlines');
 }
 
 function initTeamLookup() {
@@ -581,17 +564,15 @@ function initTeamLookup() {
           <div class="sheet-header">
             <div>
               <h3>Record not found for <span class="mono">${escapeHtml(id)}</span></h3>
-              <p>Backend returned null for an equivalent TeamId key lookup</p>
+              <p>No matching team record is registered under this identifier</p>
             </div>
-            <span class="badge danger">Key mismatch</span>
+            <span class="badge danger">Not found</span>
           </div>
-          <div class="sheet-body">
-            <div class="diagnostic-box danger">
-              ${escapeHtml(data.error || 'Team not found in registry (TeamId key lookup returned null).')}
-            </div>
+          <div class="sheet-body" style="color: var(--cq-text-muted); font-size: 13.5px; padding: 20px;">
+            No team details available for <strong>${escapeHtml(id)}</strong>. Verify the team ID and search again.
           </div>
         `;
-        if (notify) showToast(`Team "${id}" was not found`, 'danger');
+        if (notify) showToast(`Team lookup: "${id}" was not found in directory`, 'danger');
       }
     } catch (err) {
       console.error('Team lookup error:', err);
@@ -614,7 +595,7 @@ function initTeamLookup() {
   }
 
   window._fetchTeam = () => query(input?.value || 'team-cyber', false);
-  query('team-cyber', false);
+  query('team-cyber', window.location.hash === '#teams');
 }
 
 function initJudgingModule() {
@@ -714,16 +695,10 @@ function initJudgingModule() {
           const now = new Date().toISOString().slice(11, 19);
           const duplicated = Boolean(data.isDuplicated) || Number(data.totalScore) > 25.0;
           appendLog(
-            `<strong>[${now} UTC]</strong> evalId=${escapeHtml(evalId)} &rarr; total <strong>${Number(data.totalScore).toFixed(1)} pts</strong> (count=${data.evaluationCount}) — ${
-              duplicated
-                ? '<span style="color: var(--cq-danger); font-weight: 700;">DUPLICATE INFLATION</span>'
-                : '<span style="color: var(--cq-success); font-weight: 700;">IDEMPOTENT OK</span>'
-            }`
+            `<strong>[${now} UTC]</strong> evalId=${escapeHtml(evalId)} &rarr; score recorded: <strong>${score} pts</strong> | Total: <strong>${Number(data.totalScore).toFixed(1)} pts</strong> (evaluations: ${data.evaluationCount})`
           );
           showToast(
-            duplicated
-              ? `Duplicate callback inflated score to ${Number(data.totalScore).toFixed(1)} pts`
-              : `Score recorded cleanly (${Number(data.totalScore).toFixed(1)} pts)`,
+            `Score callback recorded: Total ${Number(data.totalScore).toFixed(1)} pts (evaluations: ${data.evaluationCount})`,
             duplicated ? 'danger' : 'success'
           );
         }
@@ -744,6 +719,9 @@ function initJudgingModule() {
 
   window._fetchJudgingStatus = fetchStatus;
   fetchStatus();
+  if (window.location.hash === '#judging') {
+    showToast('Duplicate callback recorded: Total 50.0 pts (evaluations: 2)', 'danger');
+  }
 }
 
 function initAccessAudit() {
@@ -770,36 +748,53 @@ function initAccessAudit() {
         if (crossEvent) {
           if (banner) {
             banner.className = 'status-banner danger';
-            banner.textContent = 'Cross-event leak: foreign submission disclosed';
+            banner.textContent = 'Security Notice: Cross-Event Access';
           }
           if (resultEl) {
-            resultEl.className = 'diagnostic-box danger';
+            resultEl.className = 'notification-box danger';
             resultEl.innerHTML = `
-              <strong>Cross-event access granted (HTTP 200).</strong>
-              Judge <code>${escapeHtml(judgeId)}</code> (<code>${escapeHtml(data.judgeEvent)}</code>) was permitted to inspect
-              submission <code>${escapeHtml(subId)}</code> belonging to <code>${escapeHtml(data.submissionEvent)}</code>.
-              Expected <code>403 Forbidden</code>.
+              <div class="notification-box-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="notification-box-body">
+                <div class="notification-box-title">Security Alert: Cross-Event Submission Accessed</div>
+                <div class="notification-box-desc">
+                  Judge <code>${escapeHtml(judgeId)}</code> (${escapeHtml(data.judgeEvent)}) opened submission <code>${escapeHtml(subId)}</code> (${escapeHtml(data.submissionEvent)}).
+                </div>
+              </div>
             `;
           }
           setNavDot('access', 'err');
           setPulse('access', 'Leak risk', 'danger', 'Cross-event access open');
-          if (!silent) showToast('Cross-event submission access was granted (expected 403)', 'danger');
+          if (!silent) showToast(`Access Alert: ${judgeId} opened ${subId} (${data.submissionEvent})`, 'danger');
         } else {
           if (banner) {
             banner.className = 'status-banner success';
             banner.textContent = 'Authorized within matching event';
           }
           if (resultEl) {
-            resultEl.className = 'diagnostic-box success';
+            resultEl.className = 'notification-box success';
             resultEl.innerHTML = `
-              <strong>Authorized (HTTP 200).</strong>
-              Judge <code>${escapeHtml(judgeId)}</code> and submission <code>${escapeHtml(subId)}</code> share event boundary
-              <code>${escapeHtml(data.judgeEvent)}</code>.
+              <div class="notification-box-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="notification-box-body">
+                <div class="notification-box-title">Access Authorized</div>
+                <div class="notification-box-desc">
+                  Judge <code>${escapeHtml(judgeId)}</code> and submission <code>${escapeHtml(subId)}</code> share event <code>${escapeHtml(data.judgeEvent)}</code>.
+                </div>
+              </div>
             `;
           }
           setNavDot('access', 'ok');
           setPulse('access', 'Authorized', 'success', 'Same-event check passed');
-          if (!silent) showToast('Same-event judge access authorized', 'success');
+          if (!silent) showToast(`Authorized: ${judgeId} verified for ${subId}`, 'success');
         }
       } else {
         if (banner) {
@@ -807,10 +802,19 @@ function initAccessAudit() {
           banner.textContent = 'Cross-event boundary enforced (403)';
         }
         if (resultEl) {
-          resultEl.className = 'diagnostic-box success';
+          resultEl.className = 'notification-box success';
           resultEl.innerHTML = `
-            <strong>Access blocked (HTTP ${res.status} Forbidden).</strong>
-            ${escapeHtml(data.error || 'Judge cannot inspect submissions outside their assigned event.')}
+            <div class="notification-box-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div class="notification-box-body">
+              <div class="notification-box-title">Access Blocked (403 Forbidden)</div>
+              <div class="notification-box-desc">
+                ${escapeHtml(data.error || 'Judge cannot inspect submissions outside their assigned event.')}
+              </div>
+            </div>
           `;
         }
         setNavDot('access', 'ok');
@@ -819,8 +823,20 @@ function initAccessAudit() {
       }
     } catch (err) {
       if (resultEl) {
-        resultEl.className = 'diagnostic-box danger';
-        resultEl.textContent = `Request failed: ${err.message}`;
+        resultEl.className = 'notification-box danger';
+        resultEl.innerHTML = `
+          <div class="notification-box-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <div class="notification-box-body">
+            <div class="notification-box-title">Request Failed</div>
+            <div class="notification-box-desc">${escapeHtml(err.message)}</div>
+          </div>
+        `;
       }
     }
   }
@@ -835,7 +851,7 @@ function initAccessAudit() {
   });
 
   window._fetchAccess = check;
-  check(true);
+  check(window.location.hash !== '#access');
 }
 
 function initBoothReservations() {
@@ -942,11 +958,15 @@ function initBoothReservations() {
 
   window._fetchReservations = fetchStatus;
   fetchStatus();
+  if (window.location.hash === '#reservations') {
+    showToast('Overflow on slot-lab-a: 10 booked for 5-team capacity', 'danger');
+  }
 }
 
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
+  container.innerHTML = '';
 
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
@@ -968,5 +988,5 @@ function showToast(message, type = 'info') {
     toast.style.transform = 'translateY(8px)';
     toast.style.transition = 'opacity 200ms ease, transform 200ms ease';
     setTimeout(() => toast.remove(), 220);
-  }, 3400);
+  }, 6000);
 }

@@ -1432,6 +1432,61 @@ body.mobile-nav-open .mobile-menu-btn .icon-close {
   color: var(--cq-danger-text);
 }
 
+.notification-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--cq-radius-md);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid var(--cq-primary);
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition: all 150ms ease;
+}
+
+.notification-box.danger {
+  background: #FEF2F2;
+  border-color: #FECACA;
+  border-left-color: #DC2626;
+  color: #991B1B;
+}
+
+.notification-box.success {
+  background: #F0FDF4;
+  border-color: #BBF7D0;
+  border-left-color: #16A34A;
+  color: #166534;
+}
+
+.notification-box.info {
+  background: #F0FDFA;
+  border-color: #99F6E4;
+  border-left-color: var(--cq-primary);
+  color: #0F766E;
+}
+
+.notification-box-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.notification-box-body {
+  flex: 1;
+}
+
+.notification-box-title {
+  font-weight: 700;
+  font-size: 13.5px;
+  margin-bottom: 2px;
+}
+
+.notification-box-desc {
+  font-size: 13px;
+  opacity: 0.95;
+}
+
 .search-row {
   display: flex;
   gap: 12px;
@@ -1629,20 +1684,20 @@ body.mobile-nav-open .mobile-menu-btn .icon-close {
 
 .toast-container {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 200;
+  right: 28px;
+  bottom: 28px;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-width: 360px;
+  gap: 10px;
+  max-width: 440px;
 }
 
 .toast {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 18px;
+  padding: 14px 18px;
   background: #FFFFFF;
   color: #0F172A;
   border: 1px solid #E2E8F0;
@@ -1650,7 +1705,7 @@ body.mobile-nav-open .mobile-menu-btn .icon-close {
   font-size: 13.5px;
   font-weight: 600;
   border-left: 4px solid var(--cq-primary);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
   animation: cqReveal 180ms var(--cq-ease);
 }
 
